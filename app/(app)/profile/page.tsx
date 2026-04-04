@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { SignOutButton } from '@/components/auth/SignOutButton'
+import { ChevronRight } from 'lucide-react'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -51,7 +52,7 @@ export default async function ProfilePage() {
                   <p className="font-medium text-sm">{league.name}</p>
                   <p className="text-xs text-muted-foreground">{league.season}</p>
                 </div>
-                <span className="text-muted-foreground text-sm">→</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </Link>
             ))}
           </div>
@@ -65,7 +66,7 @@ export default async function ProfilePage() {
           className="flex items-center justify-between p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
         >
           <span className="text-sm font-medium">Create a League</span>
-          <span className="text-muted-foreground">→</span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Link>
       </section>
 

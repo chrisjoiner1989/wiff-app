@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Props {
   params: Promise<{ teamId: string }>
@@ -35,7 +36,7 @@ export default async function TeamPage({ params }: Props) {
           href={`/leagues/${(team.league as any)?.id}`}
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          ← {(team.league as any)?.name}
+          <ChevronLeft className="inline h-3 w-3" />{(team.league as any)?.name}
         </Link>
         <div className="flex items-center gap-3">
           <div
@@ -103,7 +104,7 @@ export default async function TeamPage({ params }: Props) {
               href={`/leagues/${(team.league as any)?.id}/stats`}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              Full stats →
+              Full stats <ChevronRight className="inline h-3 w-3" />
             </Link>
           </div>
           <div className="overflow-x-auto rounded-lg border border-border bg-card">

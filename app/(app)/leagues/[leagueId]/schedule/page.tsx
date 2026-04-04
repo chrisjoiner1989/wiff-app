@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { GameCard } from '@/components/league/GameCard'
+import { CalendarDays, ChevronLeft } from 'lucide-react'
 
 interface Props {
   params: Promise<{ leagueId: string }>
@@ -57,7 +58,7 @@ export default async function SchedulePage({ params }: Props) {
             href={`/leagues/${leagueId}`}
             className="text-xs text-muted-foreground hover:text-foreground"
           >
-            ← {league.name}
+            <ChevronLeft className="inline h-3 w-3" />{league.name}
           </Link>
           <h1 className="font-display text-3xl font-800 tracking-tight mt-1">SCHEDULE</h1>
           <p className="text-muted-foreground text-sm">{league.season}</p>
@@ -74,7 +75,7 @@ export default async function SchedulePage({ params }: Props) {
 
       {Object.keys(grouped).length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-4xl mb-3">📅</p>
+          <CalendarDays className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
           <p className="font-display text-xl font-700">NO GAMES SCHEDULED</p>
         </div>
       ) : (

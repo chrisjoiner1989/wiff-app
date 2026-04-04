@@ -2,20 +2,18 @@ import { createClient } from '@/lib/supabase/server'
 import { BattingStatsTable } from '@/components/stats/BattingStatsTable'
 import { PitchingStatsTable } from '@/components/stats/PitchingStatsTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { BarChart2 } from 'lucide-react'
 
 export default async function StatsPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // Get leagues the user is commissioner of
-  const { data: myLeagues } = await supabase
+  // Show stats from the most recent league
+  const { data: recentLeagues } = await supabase
     .from('leagues')
     .select('id, name, season')
-    .eq('commissioner_id', user!.id)
     .order('created_at', { ascending: false })
     .limit(1)
 
-  const leagueId = myLeagues?.[0]?.id
+  const leagueId = recentLeagues?.[0]?.id
 
   const [{ data: batting }, { data: pitching }] = leagueId
     ? await Promise.all([
@@ -28,16 +26,16 @@ export default async function StatsPage() {
     <div className="p-4 space-y-4">
       <header className="pt-2">
         <h1 className="font-display text-4xl font-800 tracking-tight">STATS</h1>
-        {myLeagues?.[0] && (
+        {recentLeagues?.[0] && (
           <p className="text-muted-foreground text-sm">
-            {myLeagues[0].name} · {myLeagues[0].season}
+            {recentLeagues[0].name} · {recentLeagues[0].season}
           </p>
         )}
       </header>
 
       {!leagueId ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-4xl mb-3">📊</p>
+          <BarChart2 className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
           <p className="font-display text-xl font-700">NO STATS YET</p>
           <p className="text-sm mt-1">Create a league and play some games to see stats here.</p>
         </div>

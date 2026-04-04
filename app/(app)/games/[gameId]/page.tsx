@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Linescore } from '@/components/scoring/Linescore'
 import { type WiffleRulesConfig, type Tables } from '@/types/database.types'
+import { ChevronLeft, MapPin } from 'lucide-react'
 
 interface Props {
   params: Promise<{ gameId: string }>
@@ -45,9 +46,7 @@ export default async function GameDetailPage({ params }: Props) {
   }
   const typedAtBats = (atBats ?? []) as unknown as AtBatRow[]
 
-  const { data: { user } } = await supabase.auth.getUser()
   const league = game.league as { id: string; name: string; rules_config: WiffleRulesConfig; commissioner_id: string }
-  const isCommissioner = user?.id === league?.commissioner_id
   const isLive = game.status === 'live'
 
   // Group at-bats by inning and half
@@ -63,7 +62,7 @@ export default async function GameDetailPage({ params }: Props) {
       {/* Header */}
       <header className="space-y-2">
         <Link href={`/leagues/${league.id}`} className="text-xs text-muted-foreground hover:text-foreground">
-          ← {league.name}
+          <ChevronLeft className="inline h-3 w-3" />{league.name}
         </Link>
         <div className="flex items-center justify-between">
           <h1 className="font-display text-2xl font-800 tracking-tight">
@@ -102,7 +101,7 @@ export default async function GameDetailPage({ params }: Props) {
             </Link>
           )}
           {game.field_location && (
-            <span className="text-xs text-muted-foreground px-2 py-1.5">📍 {game.field_location}</span>
+            <span className="text-xs text-muted-foreground px-2 py-1.5 flex items-center gap-1"><MapPin className="h-3 w-3" />{game.field_location}</span>
           )}
         </div>
       </header>

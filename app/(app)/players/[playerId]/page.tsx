@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { ChevronLeft, Zap } from 'lucide-react'
 
 interface Props {
   params: Promise<{ playerId: string }>
@@ -43,7 +44,7 @@ export default async function PlayerPage({ params }: Props) {
     .limit(10)
 
   const RESULT_LABELS: Record<string, string> = {
-    single: '1B', double: '2B', triple: '3B', hr: 'HR ⚡',
+    single: '1B', double: '2B', triple: '3B', hr: 'HR',
     out: 'Out', k: 'K', walk: 'BB', foul_out: 'FO',
   }
 
@@ -52,7 +53,7 @@ export default async function PlayerPage({ params }: Props) {
       <header className="space-y-2">
         {league && (
           <Link href={`/teams/${team.id}`} className="text-xs text-muted-foreground hover:text-foreground">
-            ← {team.name}
+            <ChevronLeft className="inline h-3 w-3" />{team.name}
           </Link>
         )}
         <div className="flex items-center gap-4">

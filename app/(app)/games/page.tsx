@@ -1,32 +1,21 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { GameCard } from '@/components/league/GameCard'
+import { CircleDot } from 'lucide-react'
 
 export default async function GamesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
-  // Games from leagues the user is commissioner of
-  const { data: myLeagues } = await supabase
-    .from('leagues')
-    .select('id')
-    .eq('commissioner_id', user!.id)
-
-  const leagueIds = myLeagues?.map((l) => l.id) ?? []
-
-  const { data: games } = leagueIds.length
-    ? await supabase
-        .from('games')
-        .select(`
-          *,
-          home_team:teams!games_home_team_id_fkey (id, name, color_hex, logo_url),
-          away_team:teams!games_away_team_id_fkey (id, name, color_hex, logo_url),
-          league:leagues (id, name)
-        `)
-        .in('league_id', leagueIds)
-        .order('scheduled_at', { ascending: false })
-        .limit(30)
-    : { data: [] }
+  const { data: games } = await supabase
+    .from('games')
+    .select(`
+      *,
+      home_team:teams!games_home_team_id_fkey (id, name, color_hex, logo_url),
+      away_team:teams!games_away_team_id_fkey (id, name, color_hex, logo_url),
+      league:leagues (id, name)
+    `)
+    .order('scheduled_at', { ascending: false })
+    .limit(30)
 
   const live = games?.filter((g) => g.status === 'live') ?? []
   const upcoming = games?.filter((g) => g.status === 'scheduled') ?? []
@@ -37,7 +26,7 @@ export default async function GamesPage() {
       <header className="flex items-center justify-between pt-2">
         <div>
           <h1 className="font-display text-4xl font-800 tracking-tight">GAMES</h1>
-          <p className="text-muted-foreground text-sm">Your league games</p>
+          <p className="text-muted-foreground text-sm">All games</p>
         </div>
         <Link
           href="/games/new"
@@ -79,7 +68,7 @@ export default async function GamesPage() {
 
       {!games?.length && (
         <div className="text-center py-16 space-y-3">
-          <p className="text-4xl">⚾</p>
+          <CircleDot className="h-12 w-12 mx-auto text-muted-foreground" />
           <p className="font-display text-2xl font-700 tracking-wide">NO GAMES YET</p>
           <Link
             href="/games/new"

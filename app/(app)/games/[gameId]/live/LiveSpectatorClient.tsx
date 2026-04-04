@@ -29,7 +29,7 @@ const RESULT_LABELS: Record<string, string> = {
   single: '1B — Single',
   double: '2B — Double',
   triple: '3B — Triple',
-  hr: '💥 HOME RUN',
+  hr: 'HOME RUN',
   out: 'Out',
   k: 'Strikeout',
   walk: 'Walk (BB)',

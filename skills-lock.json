@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "ai-image-generator": {
+      "source": "jezweb/claude-skills",
+      "sourceType": "github",
+      "computedHash": "57782cf263eeaee3df3d096fa83a5279e4a55c8b75bb330575dd40d3ad11c8c0"
+    },
+    "logo-design-guide": {
+      "source": "inferen-sh/skills",
+      "sourceType": "github",
+      "computedHash": "88b6dab119da5e33c7a669f53cb3416ce1655f29c080c646c7e21cecd9198a81"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "9c87c315aed143ee3b34bec8117100f5035e0df09e6b23e1ecc772cff434c9ad"
+    }
+  }
+}

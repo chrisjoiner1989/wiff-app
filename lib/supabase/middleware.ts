@@ -7,7 +7,7 @@ export async function updateSession(request: NextRequest) {
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
     {
       cookies: {
         getAll() {
@@ -26,30 +26,8 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // Protected routes requiring auth
-  const protectedPaths = ['/profile', '/games']
-  const isProtectedScorePath = request.nextUrl.pathname.match(/\/games\/.*\/score/)
-
-  if (isProtectedScorePath && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirectTo', request.nextUrl.pathname)
-    return NextResponse.redirect(url)
-  }
-
-  if (
-    !user &&
-    protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p)) &&
-    !request.nextUrl.pathname.startsWith('/login')
-  ) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
+  // Refresh session if exists (no auth gates — all routes are public)
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }

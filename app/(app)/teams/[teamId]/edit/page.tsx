@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -94,7 +94,7 @@ export default function EditRosterPage() {
           onClick={() => router.back()}
           className="text-xs text-muted-foreground hover:text-foreground mb-1"
         >
-          ← Back
+          <ChevronLeft className="inline h-3 w-3" />Back
         </button>
         <h1 className="font-display text-3xl font-800 tracking-tight">EDIT ROSTER</h1>
         <p className="text-muted-foreground text-sm">{team?.name}</p>

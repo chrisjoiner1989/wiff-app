@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'Wiff',
   },
+  icons: {
+    icon: '/icons/icon-192.png',
+    apple: '/icons/icon-512.png',
+  },
 }
 
 export const viewport: Viewport = {

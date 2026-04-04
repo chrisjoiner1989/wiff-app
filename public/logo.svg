@@ -1,0 +1,39 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="90" fill="#0B0B0B"/>
+
+  <!-- Motion trail -->
+  <path d="M110 340 C180 260, 260 260, 330 330"
+        stroke="#EAEAEA"
+        stroke-width="18"
+        fill="none"
+        stroke-linecap="round"
+        opacity="0.9"/>
+
+  <path d="M140 360 C210 300, 280 300, 350 360"
+        stroke="#777777"
+        stroke-width="10"
+        fill="none"
+        stroke-linecap="round"
+        opacity="0.6"/>
+
+  <!-- Wiffle Ball -->
+  <circle cx="320" cy="190" r="70" fill="#F5F5F5"/>
+
+  <!-- Ball holes -->
+  <ellipse cx="300" cy="170" rx="10" ry="18" fill="#0B0B0B"/>
+  <ellipse cx="335" cy="155" rx="10" ry="18" fill="#0B0B0B"/>
+  <ellipse cx="350" cy="185" rx="10" ry="18" fill="#0B0B0B"/>
+  <ellipse cx="315" cy="210" rx="10" ry="18" fill="#0B0B0B"/>
+
+  <!-- Text -->
+  <text x="256" y="430"
+        text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="90"
+        font-weight="700"
+        fill="#FFFFFF"
+        letter-spacing="4">
+    WIFF
+  </text>
+</svg>

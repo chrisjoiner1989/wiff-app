@@ -1,15 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
+import { Trophy } from 'lucide-react'
 
 export default async function LeaguesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: myLeagues } = await supabase
+  const { data: leagues } = await supabase
     .from('leagues')
     .select(`*, teams (id)`)
-    .eq('commissioner_id', user!.id)
     .order('created_at', { ascending: false })
 
   return (
@@ -17,7 +15,7 @@ export default async function LeaguesPage() {
       <header className="flex items-center justify-between pt-2">
         <div>
           <h1 className="font-display text-4xl font-800 tracking-tight">LEAGUES</h1>
-          <p className="text-muted-foreground text-sm">Your leagues</p>
+          <p className="text-muted-foreground text-sm">All leagues</p>
         </div>
         <Link
           href="/leagues/new"
@@ -27,9 +25,9 @@ export default async function LeaguesPage() {
         </Link>
       </header>
 
-      {!myLeagues?.length ? (
+      {!leagues?.length ? (
         <div className="text-center py-16 space-y-3">
-          <p className="text-4xl">🏆</p>
+          <Trophy className="h-12 w-12 mx-auto text-muted-foreground" />
           <p className="font-display text-2xl font-700 tracking-wide">NO LEAGUES YET</p>
           <p className="text-muted-foreground text-sm">Create your first league to get started.</p>
           <Link
@@ -41,7 +39,7 @@ export default async function LeaguesPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {myLeagues.map((league) => (
+          {leagues.map((league) => (
             <Link
               key={league.id}
               href={`/leagues/${league.id}`}
@@ -51,12 +49,9 @@ export default async function LeaguesPage() {
                 <p className="font-display text-xl font-700 tracking-wide">{league.name}</p>
                 <p className="text-xs text-muted-foreground">{league.season}</p>
               </div>
-              <div className="text-right space-y-1">
-                <Badge variant="secondary" className="text-xs">Commissioner</Badge>
-                <p className="text-xs text-muted-foreground">
-                  {(league.teams as { id: string }[]).length} team{(league.teams as { id: string }[]).length !== 1 ? 's' : ''}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground">
+                {(league.teams as { id: string }[]).length} team{(league.teams as { id: string }[]).length !== 1 ? 's' : ''}
+              </p>
             </Link>
           ))}
         </div>
