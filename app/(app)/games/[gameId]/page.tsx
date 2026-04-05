@@ -50,8 +50,8 @@ export default async function GameDetailPage({ params }: Props) {
 
   const league = game.league as { id: string; name: string; rules_config: WiffleRulesConfig; commissioner_id: string }
   const isLive = game.status === 'live'
-  const { data: { user } } = await supabase.auth.getUser()
-  const isCommissioner = user?.id === league.commissioner_id
+  // Auth-free demo mode: always show scorekeeper link
+  const isCommissioner = true
 
   // Group at-bats by inning and half
   const atBatsByInning: Record<string, AtBatRow[]> = {}

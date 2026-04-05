@@ -12,9 +12,6 @@ export default async function ScorePage({ params }: Props) {
   const { gameId } = await params
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
   const { data: game, error } = await supabase
     .from('games')
     .select(`
@@ -27,10 +24,6 @@ export default async function ScorePage({ params }: Props) {
     .single()
 
   if (error || !game) redirect('/')
-
-  // Only commissioner can score
-  const league = game.league as { commissioner_id: string; rules_config: unknown }
-  if (league.commissioner_id !== user.id) redirect(`/games/${gameId}`)
 
   const { data: lineups } = await supabase
     .from('game_lineups')

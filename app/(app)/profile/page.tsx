@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { SignOutButton } from '@/components/auth/SignOutButton'
@@ -10,14 +9,12 @@ export const dynamic = 'force-dynamic'
 export default async function ProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
 
-  const { data: leagues } = await supabase
-    .from('leagues')
-    .select('id, name, season')
-    .eq('commissioner_id', user.id)
+  const leagues = user
+    ? (await supabase.from('leagues').select('id, name, season').eq('commissioner_id', user.id)).data
+    : null
 
-  const displayName = user.user_metadata?.full_name ?? user.email ?? 'Player'
+  const displayName = user?.user_metadata?.full_name ?? user?.email ?? 'Guest'
   const initials = displayName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
 
   return (
@@ -35,7 +32,7 @@ export default async function ProfilePage() {
         </Avatar>
         <div className="flex-1 min-w-0">
           <p className="font-display text-2xl font-700 tracking-wide truncate">{displayName}</p>
-          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+          <p className="text-xs text-muted-foreground truncate">{user?.email ?? 'Not signed in'}</p>
         </div>
       </div>
 
@@ -72,7 +69,15 @@ export default async function ProfilePage() {
         </Link>
       </section>
 
-      <SignOutButton />
+      {user && <SignOutButton />}
+      {!user && (
+        <Link
+          href="/login"
+          className="flex items-center justify-center w-full p-3 rounded-lg border border-primary text-primary font-medium text-sm"
+        >
+          Sign In
+        </Link>
+      )}
     </div>
   )
 }
