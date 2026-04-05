@@ -92,7 +92,7 @@ export default async function GameDetailPage({ params }: Props) {
               Watch Live
             </Link>
           )}
-          {isCommissioner && (game.status === 'scheduled' || isLive) && (
+          {(game.status === 'scheduled' || isLive) && (
             <Link
               href={`/games/${gameId}/score`}
               className="text-xs px-3 py-1.5 rounded-md border border-primary text-primary font-medium"
