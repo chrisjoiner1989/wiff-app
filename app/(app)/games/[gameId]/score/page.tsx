@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ScorekeeperClient } from './ScorekeeperClient'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ gameId: string }>
 }

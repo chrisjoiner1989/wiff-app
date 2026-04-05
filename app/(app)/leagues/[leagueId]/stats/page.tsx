@@ -4,6 +4,8 @@ import { BattingStatsTable } from '@/components/stats/BattingStatsTable'
 import { PitchingStatsTable } from '@/components/stats/PitchingStatsTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ leagueId: string }>
 }

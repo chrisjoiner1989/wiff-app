@@ -1,18 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Barlow_Condensed, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 
-const barlowCondensed = Barlow_Condensed({
-  subsets: ['latin'],
-  weight: ['400', '600', '700', '800'],
-  variable: '--font-display',
-})
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-body',
-})
+// Font CSS variables are defined in globals.css using system font stacks
+const fontVars = {
+  '--font-display': 'Impact, "Arial Narrow", Arial, sans-serif',
+  '--font-body': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+} as React.CSSProperties
 
 export const metadata: Metadata = {
   title: 'Wiff — Wiffle Ball League Manager',
@@ -40,7 +34,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body
-        className={`${barlowCondensed.variable} ${dmSans.variable} font-body bg-background text-foreground antialiased min-h-screen`}
+        style={fontVars}
+        className="font-body bg-background text-foreground antialiased min-h-screen"
       >
         <Providers>{children}</Providers>
       </body>

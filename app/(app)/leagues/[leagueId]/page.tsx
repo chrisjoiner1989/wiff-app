@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { StandingsTable } from '@/components/league/StandingsTable'
 import { GameCard } from '@/components/league/GameCard'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ leagueId: string }>
 }

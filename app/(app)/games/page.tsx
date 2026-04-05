@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { GameCard } from '@/components/league/GameCard'
 import { CircleDot } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function GamesPage() {
   const supabase = await createClient()
 

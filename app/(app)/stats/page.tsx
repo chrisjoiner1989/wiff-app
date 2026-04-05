@@ -4,6 +4,8 @@ import { PitchingStatsTable } from '@/components/stats/PitchingStatsTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { BarChart2 } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function StatsPage() {
   const supabase = await createClient()
   // Show stats from the most recent league

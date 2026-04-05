@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { LiveSpectatorClient } from './LiveSpectatorClient'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ gameId: string }>
 }

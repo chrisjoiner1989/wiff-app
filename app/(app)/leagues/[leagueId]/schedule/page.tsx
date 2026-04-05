@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { GameCard } from '@/components/league/GameCard'
 import { CalendarDays, ChevronLeft } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ leagueId: string }>
 }

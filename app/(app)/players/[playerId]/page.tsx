@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { ChevronLeft, Zap } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ playerId: string }>
 }

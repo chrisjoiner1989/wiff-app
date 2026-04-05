@@ -6,6 +6,8 @@ import { Linescore } from '@/components/scoring/Linescore'
 import { type WiffleRulesConfig, type Tables } from '@/types/database.types'
 import { ChevronLeft, MapPin } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ gameId: string }>
 }
@@ -48,6 +50,8 @@ export default async function GameDetailPage({ params }: Props) {
 
   const league = game.league as { id: string; name: string; rules_config: WiffleRulesConfig; commissioner_id: string }
   const isLive = game.status === 'live'
+  const { data: { user } } = await supabase.auth.getUser()
+  const isCommissioner = user?.id === league.commissioner_id
 
   // Group at-bats by inning and half
   const atBatsByInning: Record<string, AtBatRow[]> = {}

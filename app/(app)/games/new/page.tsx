@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,6 +27,14 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export default function NewGamePage() {
+  return (
+    <Suspense>
+      <NewGameForm />
+    </Suspense>
+  )
+}
+
+function NewGameForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const defaultLeagueId = searchParams.get('leagueId') ?? ''
