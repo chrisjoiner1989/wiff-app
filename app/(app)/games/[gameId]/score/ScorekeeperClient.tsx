@@ -67,18 +67,29 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     .filter((l) => l.team_id === battingTeamId)
     .sort((a, b) => a.batting_order - b.batting_order)
 
-  const pitcher = lineups.find((l) => l.team_id === fieldingTeamId && l.is_pitcher)
+  // Fall back to first fielding player if no one is explicitly marked as pitcher
+  const fieldingLineup = lineups.filter((l) => l.team_id === fieldingTeamId)
+  const pitcher =
+    fieldingLineup.find((l) => l.is_pitcher) ?? fieldingLineup[0] ?? null
 
   const batterIndex =
     store.half === 'top'
       ? store.currentBatterIndex.away
       : store.currentBatterIndex.home
 
-  const currentBatter = battingTeamLineup[batterIndex % battingTeamLineup.length]
+  const currentBatter = battingTeamLineup[batterIndex % battingTeamLineup.length] ?? null
   const currentTeamKey = store.half === 'top' ? 'away' : 'home'
 
   async function handleAtBat(result: AtBatResult) {
-    if (!currentBatter || !pitcher || saving) return
+    if (saving) return
+    if (!currentBatter) {
+      toast.error('No batter — set the lineup first')
+      return
+    }
+    if (!pitcher) {
+      toast.error('No pitcher — set the lineup first')
+      return
+    }
     setSaving(true)
 
     // Snapshot current store state before any mutations
@@ -315,8 +326,29 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     runner_third: store.runners.third,
   } as Tables<'games'>
 
+  const lineupMissing = !currentBatter || !pitcher
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Lineup warning */}
+      {lineupMissing && (
+        <div className="bg-destructive/10 border-b border-destructive/30 px-4 py-2 flex items-center justify-between gap-3">
+          <p className="text-sm text-destructive font-medium">
+            {!currentBatter && !pitcher
+              ? 'No lineups set — scoring is disabled'
+              : !currentBatter
+              ? 'No batting lineup for this team'
+              : 'No pitcher set for the fielding team'}
+          </p>
+          <a
+            href={`/games/${initialGame.id}/lineup`}
+            className="text-xs font-medium text-destructive underline underline-offset-2 shrink-0"
+          >
+            Set Lineup
+          </a>
+        </div>
+      )}
+
       {/* Top bar */}
       <header className="flex items-center justify-between p-3 border-b border-border bg-card">
         <div>
