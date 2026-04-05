@@ -79,6 +79,19 @@ export function useCreateLeague() {
   })
 }
 
+export function useDeleteLeague() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('leagues').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leagueKeys.all })
+    },
+  })
+}
+
 export function useUpdateLeague(id: string) {
   const queryClient = useQueryClient()
   return useMutation({

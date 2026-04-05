@@ -1,11 +1,8 @@
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
-
 -- ─────────────────────────────────────────
 -- LEAGUES
 -- ─────────────────────────────────────────
 create table leagues (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   season text not null,
   commissioner_id uuid not null references auth.users(id) on delete cascade,
@@ -32,7 +29,7 @@ create table leagues (
 -- TEAMS
 -- ─────────────────────────────────────────
 create table teams (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   league_id uuid not null references leagues(id) on delete cascade,
   name text not null,
   logo_url text,
@@ -44,7 +41,7 @@ create table teams (
 -- PLAYERS
 -- ─────────────────────────────────────────
 create table players (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   team_id uuid not null references teams(id) on delete cascade,
   user_id uuid references auth.users(id) on delete set null,
   name text not null,
@@ -59,7 +56,7 @@ create table players (
 create type game_status as enum ('scheduled', 'live', 'final', 'postponed');
 
 create table games (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   league_id uuid not null references leagues(id) on delete cascade,
   home_team_id uuid not null references teams(id),
   away_team_id uuid not null references teams(id),
@@ -82,7 +79,7 @@ create table games (
 -- GAME LINEUPS
 -- ─────────────────────────────────────────
 create table game_lineups (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   game_id uuid not null references games(id) on delete cascade,
   team_id uuid not null references teams(id),
   player_id uuid not null references players(id),
@@ -104,7 +101,7 @@ create type at_bat_result as enum (
 );
 
 create table at_bats (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   game_id uuid not null references games(id) on delete cascade,
   pitcher_id uuid not null references players(id),
   batter_id uuid not null references players(id),
@@ -123,7 +120,7 @@ create type pitch_result as enum ('ball', 'strike', 'foul', 'hit', 'hbp');
 create type pitch_type as enum ('fastball', 'curveball', 'changeup', 'riser', 'drop', 'slider', 'knuckleball', 'other');
 
 create table pitches (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   at_bat_id uuid not null references at_bats(id) on delete cascade,
   pitch_type pitch_type,
   result pitch_result not null,
@@ -135,7 +132,7 @@ create table pitches (
 -- GAME INNINGS (linescore)
 -- ─────────────────────────────────────────
 create table game_innings (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   game_id uuid not null references games(id) on delete cascade,
   inning int not null check (inning >= 1),
   home_runs int not null default 0,

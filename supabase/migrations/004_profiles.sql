@@ -1,5 +1,5 @@
 -- Profiles table linked to auth.users
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   full_name text not null default '',
   username text unique,
@@ -25,6 +25,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
@@ -32,8 +33,17 @@ create trigger on_auth_user_created
 -- RLS
 alter table public.profiles enable row level security;
 
-create policy "Public profiles are viewable by everyone"
-  on public.profiles for select using (true);
-
-create policy "Users can update their own profile"
-  on public.profiles for update using (auth.uid() = id);
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where tablename = 'profiles' and policyname = 'Public profiles are viewable by everyone'
+  ) then
+    create policy "Public profiles are viewable by everyone"
+      on public.profiles for select using (true);
+  end if;
+  if not exists (
+    select 1 from pg_policies where tablename = 'profiles' and policyname = 'Users can update their own profile'
+  ) then
+    create policy "Users can update their own profile"
+      on public.profiles for update using (auth.uid() = id);
+  end if;
+end $$;
