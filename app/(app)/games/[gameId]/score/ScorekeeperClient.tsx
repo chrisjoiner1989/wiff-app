@@ -81,24 +81,32 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     if (!currentBatter || !pitcher || saving) return
     setSaving(true)
 
+    // Snapshot current store state before any mutations
+    const snapInning = store.inning
+    const snapHalf = store.half
+    const snapOuts = store.outs
+    const snapHomeScore = store.homeScore
+    const snapAwayScore = store.awayScore
+    const snapRunners = store.runners
+    const snapBatterIndex = batterIndex
+
     const { newRunners, runsScored } = advanceRunners(
       result,
-      store.runners,
+      snapRunners,
       currentBatter.player_id,
       rules
     )
 
-    const newHomeScore =
-      store.half === 'bottom' ? store.homeScore + runsScored : store.homeScore
-    const newAwayScore =
-      store.half === 'top' ? store.awayScore + runsScored : store.awayScore
-
+    const newHomeScore = snapHalf === 'bottom' ? snapHomeScore + runsScored : snapHomeScore
+    const newAwayScore = snapHalf === 'top' ? snapAwayScore + runsScored : snapAwayScore
     const outsAdded = isOut(result) ? 1 : 0
-    const newOuts = store.outs + outsAdded
+    const newOuts = snapOuts + outsAdded
+    const sideRetired = newOuts >= 3
+    const gameOver = isGameOver(newHomeScore, newAwayScore, snapInning, snapHalf, rules)
 
-    // Optimistic update
-    store.updateScore(newHomeScore, newAwayScore)
-    store.setRunners(newRunners)
+    // Compute next inning/half from snapshot — never from store after mutation
+    const nextHalf = snapHalf === 'top' ? 'bottom' : 'top'
+    const nextInning = snapHalf === 'bottom' ? snapInning + 1 : snapInning
 
     try {
       // Insert at_bat
@@ -108,8 +116,8 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
           game_id: initialGame.id,
           pitcher_id: pitcher.player_id,
           batter_id: currentBatter.player_id,
-          inning: store.inning,
-          top_bottom: store.half,
+          inning: snapInning,
+          top_bottom: snapHalf,
           result,
           rbi: runsScored,
           sequence_in_game: store.actionHistory.length + 1,
@@ -120,10 +128,10 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
       if (abError) throw abError
       setLastAtBatId(atBat.id)
 
-      // Upsert game_innings
-      const inningUpdate = innings.find((i) => i.inning === store.inning) ?? {
+      // Upsert game_innings using local state as base (incremental delta)
+      const existingInning = innings.find((i) => i.inning === snapInning) ?? {
         game_id: initialGame.id,
-        inning: store.inning,
+        inning: snapInning,
         home_runs: 0,
         away_runs: 0,
         home_hits: 0,
@@ -133,11 +141,11 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
       }
 
       const updatedInning = {
-        ...inningUpdate,
-        home_runs: inningUpdate.home_runs + (store.half === 'bottom' ? runsScored : 0),
-        away_runs: inningUpdate.away_runs + (store.half === 'top' ? runsScored : 0),
-        home_hits: inningUpdate.home_hits + (store.half === 'bottom' && isHit(result) ? 1 : 0),
-        away_hits: inningUpdate.away_hits + (store.half === 'top' && isHit(result) ? 1 : 0),
+        ...existingInning,
+        home_runs: existingInning.home_runs + (snapHalf === 'bottom' ? runsScored : 0),
+        away_runs: existingInning.away_runs + (snapHalf === 'top' ? runsScored : 0),
+        home_hits: existingInning.home_hits + (snapHalf === 'bottom' && isHit(result) ? 1 : 0),
+        away_hits: existingInning.away_hits + (snapHalf === 'top' && isHit(result) ? 1 : 0),
       }
 
       const { error: inningError } = await supabase
@@ -147,52 +155,48 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
       if (inningError) throw inningError
 
       setInnings((prev) => {
-        const existing = prev.findIndex((i) => i.inning === store.inning)
-        if (existing >= 0) {
+        const idx = prev.findIndex((i) => i.inning === snapInning)
+        if (idx >= 0) {
           const next = [...prev]
-          next[existing] = updatedInning as Tables<'game_innings'>
+          next[idx] = updatedInning as Tables<'game_innings'>
           return next
         }
         return [...prev, updatedInning as Tables<'game_innings'>]
       })
 
-      const gameOver = isGameOver(newHomeScore, newAwayScore, store.inning, store.half, rules)
-
-      // Determine if half-inning is over (3 outs)
-      let gameState: Partial<Tables<'games'>> = {
+      // Build game row update from snapshot values — not from store
+      const gameState: Partial<Tables<'games'>> = {
         home_score: newHomeScore,
         away_score: newAwayScore,
-        runner_first: newRunners.first,
-        runner_second: newRunners.second,
-        runner_third: newRunners.third,
-        outs: newOuts,
+        outs: sideRetired || gameOver ? 0 : newOuts,
+        runner_first: sideRetired || gameOver ? null : newRunners.first,
+        runner_second: sideRetired || gameOver ? null : newRunners.second,
+        runner_third: sideRetired || gameOver ? null : newRunners.third,
+        current_inning: sideRetired && !gameOver ? nextInning : snapInning,
+        current_half: sideRetired && !gameOver ? nextHalf : snapHalf,
+        status: gameOver ? 'final' : 'live',
       }
 
-      if (gameOver) {
-        gameState.status = 'final'
-      } else if (newOuts >= 3) {
-        // Side retired — advance half-inning
-        store.advanceInning()
-        store.addOut() // triggers the store, but actual advancement done above
-        gameState.outs = 0
-        gameState.runner_first = null
-        gameState.runner_second = null
-        gameState.runner_third = null
+      const { error: gameError } = await supabase
+        .from('games')
+        .update(gameState)
+        .eq('id', initialGame.id)
 
-        const nextHalf = store.half === 'top' ? 'bottom' : 'top'
-        const nextInning = store.half === 'bottom' ? store.inning + 1 : store.inning
-        gameState.current_half = nextHalf
-        gameState.current_inning = nextInning
+      if (gameError) throw gameError
+
+      // Now update store — all values derived from snapshot, not stale store reads
+      store.updateScore(newHomeScore, newAwayScore)
+
+      if (gameOver || sideRetired) {
+        store.advanceInning()
       } else {
         store.addOut()
-        // Advance batter index
+        store.setRunners(newRunners)
         store.setCurrentBatter(
           currentTeamKey,
-          (batterIndex + 1) % Math.max(battingTeamLineup.length, 1)
+          (snapBatterIndex + 1) % Math.max(battingTeamLineup.length, 1)
         )
       }
-
-      await supabase.from('games').update(gameState).eq('id', initialGame.id)
 
       store.recordAtBat({
         type: 'at_bat',
@@ -200,8 +204,8 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         result,
         batterId: currentBatter.player_id,
         pitcherId: pitcher.player_id,
-        inning: store.inning,
-        half: store.half,
+        inning: snapInning,
+        half: snapHalf,
         rbi: runsScored,
         timestamp: new Date().toISOString(),
       })
@@ -209,14 +213,11 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
       if (gameOver) {
         toast.success('Game over!')
         router.push(`/games/${initialGame.id}`)
-      } else if (newOuts >= 3) {
+      } else if (sideRetired) {
         toast.info('Side retired — next half inning')
       }
-    } catch (err) {
-      toast.error('Failed to save — please retry')
-      // Revert optimistic updates
-      store.updateScore(store.homeScore, store.awayScore)
-      store.setRunners(store.runners)
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Failed to save — please retry')
     } finally {
       setSaving(false)
     }
@@ -226,12 +227,76 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     if (!lastAtBatId || saving) return
     setSaving(true)
     try {
+      // Fetch the at_bat we're undoing so we know what to reverse
+      const { data: atBat } = await supabase
+        .from('at_bats')
+        .select('*')
+        .eq('id', lastAtBatId)
+        .single()
+
+      if (!atBat) throw new Error('At-bat not found')
+
       await supabase.from('at_bats').delete().eq('id', lastAtBatId)
-      setLastAtBatId(null)
+
+      // Re-fetch the game row from DB as the source of truth
+      const { data: freshGame } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', initialGame.id)
+        .single()
+
+      if (!freshGame) throw new Error('Game not found')
+
+      // Reverse the score delta
+      const runsToReverse = atBat.rbi ?? 0
+      const wasBottom = atBat.top_bottom === 'bottom'
+      const newHomeScore = freshGame.home_score - (wasBottom ? runsToReverse : 0)
+      const newAwayScore = freshGame.away_score - (wasBottom ? 0 : runsToReverse)
+
+      // Reverse outs: if it was an out, decrement by 1 (floor at 0)
+      const wasOut = isOut(atBat.result as AtBatResult)
+      const newOuts = Math.max(0, freshGame.outs - (wasOut ? 1 : 0))
+
+      const { error: gameError } = await supabase
+        .from('games')
+        .update({
+          home_score: newHomeScore,
+          away_score: newAwayScore,
+          outs: newOuts,
+          current_inning: atBat.inning,
+          current_half: atBat.top_bottom,
+          status: 'live',
+        })
+        .eq('id', initialGame.id)
+
+      if (gameError) throw gameError
+
+      // Reverse the inning stats
+      const existingInning = innings.find((i) => i.inning === atBat.inning)
+      if (existingInning) {
+        const wasHit = isHit(atBat.result as AtBatResult)
+        const reversedInning = {
+          ...existingInning,
+          home_runs: Math.max(0, existingInning.home_runs - (wasBottom ? runsToReverse : 0)),
+          away_runs: Math.max(0, existingInning.away_runs - (wasBottom ? 0 : runsToReverse)),
+          home_hits: Math.max(0, existingInning.home_hits - (wasBottom && wasHit ? 1 : 0)),
+          away_hits: Math.max(0, existingInning.away_hits - (!wasBottom && wasHit ? 1 : 0)),
+        }
+        await supabase
+          .from('game_innings')
+          .upsert(reversedInning, { onConflict: 'game_id,inning' })
+        setInnings((prev) => prev.map((i) =>
+          i.inning === atBat.inning ? reversedInning as Tables<'game_innings'> : i
+        ))
+      }
+
+      // Sync store back to DB state
+      store.updateScore(newHomeScore, newAwayScore)
       store.undoLastAction()
+      setLastAtBatId(store.actionHistory.at(-2)?.atBatId ?? null)
       toast.info('Last action undone')
-    } catch {
-      toast.error('Could not undo')
+    } catch (err: any) {
+      toast.error(err?.message ?? 'Could not undo')
     } finally {
       setSaving(false)
     }
