@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { CircleDot, Trash2 } from 'lucide-react'
@@ -14,7 +14,6 @@ export default function GamesPage() {
 
   const [games, setGames] = useState<any[]>([])
   const [userId, setUserId] = useState<string | null>(null)
-  const [confirmId, setConfirmId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -41,7 +40,6 @@ export default function GamesPage() {
     await deleteGame.mutateAsync(id, {
       onSuccess: () => {
         setGames((prev) => prev.filter((g) => g.id !== id))
-        setConfirmId(null)
         toast.success('Game deleted')
       },
       onError: (e: any) => toast.error(e.message),
@@ -79,10 +77,8 @@ export default function GamesPage() {
                 key={g.id}
                 game={g}
                 userId={userId}
-                confirmId={confirmId}
-                setConfirmId={setConfirmId}
                 onDelete={handleDelete}
-                deleting={deleteGame.isPending && confirmId === g.id}
+                deleting={deleteGame.isPending}
                 showLiveBadge
               />
             ))}
@@ -99,10 +95,8 @@ export default function GamesPage() {
                 key={g.id}
                 game={g}
                 userId={userId}
-                confirmId={confirmId}
-                setConfirmId={setConfirmId}
                 onDelete={handleDelete}
-                deleting={deleteGame.isPending && confirmId === g.id}
+                deleting={deleteGame.isPending}
               />
             ))}
           </div>
@@ -118,10 +112,8 @@ export default function GamesPage() {
                 key={g.id}
                 game={g}
                 userId={userId}
-                confirmId={confirmId}
-                setConfirmId={setConfirmId}
                 onDelete={handleDelete}
-                deleting={deleteGame.isPending && confirmId === g.id}
+                deleting={deleteGame.isPending}
               />
             ))}
           </div>
@@ -144,40 +136,89 @@ export default function GamesPage() {
   )
 }
 
+const SWIPE_THRESHOLD = 80  // px to trigger delete
+const SWIPE_MAX = 100       // max drag distance
+
 interface GameRowProps {
   game: any
   userId: string | null
-  confirmId: string | null
-  setConfirmId: (id: string | null) => void
   onDelete: (id: string) => void
   deleting: boolean
   showLiveBadge?: boolean
 }
 
-function GameRow({ game, userId, confirmId, setConfirmId, onDelete, deleting, showLiveBadge }: GameRowProps) {
+function GameRow({ game, userId, onDelete, deleting, showLiveBadge }: GameRowProps) {
   const isCommissioner = userId && game.league?.commissioner_id === userId
-  const isConfirming = confirmId === game.id
+  const [offset, setOffset] = useState(0)
+  const [confirming, setConfirming] = useState(false)
+  const startX = useRef<number | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  function onPointerDown(e: React.PointerEvent) {
+    if (!isCommissioner) return
+    startX.current = e.clientX
+    cardRef.current?.setPointerCapture(e.pointerId)
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (startX.current === null) return
+    const delta = startX.current - e.clientX
+    if (delta < 0) { setOffset(0); return }
+    setOffset(Math.min(delta, SWIPE_MAX))
+  }
+
+  function onPointerUp() {
+    if (startX.current === null) return
+    startX.current = null
+    if (offset >= SWIPE_THRESHOLD) {
+      setOffset(SWIPE_MAX)
+      setConfirming(true)
+    } else {
+      setOffset(0)
+      setConfirming(false)
+    }
+  }
+
+  function cancel() {
+    setOffset(0)
+    setConfirming(false)
+  }
+
+  const revealed = offset >= SWIPE_THRESHOLD
 
   return (
-    <div className="relative">
-      <GameCard game={game} showLiveBadge={showLiveBadge} />
+    <div className="relative overflow-hidden rounded-lg">
+      {/* Delete background */}
+      <div
+        className={`absolute inset-y-0 right-0 flex items-center justify-end px-5 rounded-lg transition-colors ${
+          revealed ? 'bg-destructive' : 'bg-destructive/60'
+        }`}
+        style={{ width: `${Math.max(offset, 0)}px` }}
+        aria-hidden="true"
+      >
+        <Trash2 className="h-5 w-5 text-white shrink-0" />
+      </div>
 
-      {isCommissioner && !isConfirming && (
-        <button
-          onClick={() => setConfirmId(game.id)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-          aria-label="Delete game"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      )}
+      {/* Card (slides left) */}
+      <div
+        ref={cardRef}
+        style={{ transform: `translateX(-${offset}px)`, transition: startX.current ? 'none' : 'transform 0.2s ease' }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className="touch-pan-y select-none"
+      >
+        <GameCard game={game} showLiveBadge={showLiveBadge} />
+      </div>
 
-      {isCommissioner && isConfirming && (
+      {/* Confirm overlay */}
+      {isCommissioner && confirming && (
         <div className="absolute inset-0 flex items-center justify-between gap-2 px-3 rounded-lg bg-card border border-destructive/50">
           <p className="text-sm text-destructive font-medium">Delete this game?</p>
           <div className="flex gap-2 shrink-0">
             <button
-              onClick={() => setConfirmId(null)}
+              onClick={cancel}
               className="px-3 py-1.5 text-xs rounded-md border border-border hover:bg-muted transition-colors"
             >
               Cancel
@@ -185,7 +226,7 @@ function GameRow({ game, userId, confirmId, setConfirmId, onDelete, deleting, sh
             <button
               onClick={() => onDelete(game.id)}
               disabled={deleting}
-              className="px-3 py-1.5 text-xs rounded-md bg-destructive text-destructive-foreground font-medium disabled:opacity-50 transition-colors"
+              className="px-3 py-1.5 text-xs rounded-md bg-destructive text-destructive-foreground font-medium disabled:opacity-50"
             >
               {deleting ? 'Deleting…' : 'Delete'}
             </button>
