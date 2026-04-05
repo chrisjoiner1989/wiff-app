@@ -156,6 +156,20 @@ export function useRealtimeGame(gameId: string) {
   return query
 }
 
+export function useDeleteGame() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('games').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gameKeys.all })
+    },
+  })
+}
+
 export function useCreateGame() {
   const supabase = createClient()
   const queryClient = useQueryClient()
