@@ -61,7 +61,7 @@ export default function EditRosterPage() {
   async function addPlayer() {
     const result = playerSchema.safeParse(newPlayer)
     if (!result.success) {
-      toast.error(result.error.errors[0].message)
+      toast.error(result.error.issues[0].message)
       return
     }
     setAdding(true)

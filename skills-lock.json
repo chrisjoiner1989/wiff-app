@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "57782cf263eeaee3df3d096fa83a5279e4a55c8b75bb330575dd40d3ad11c8c0"
     },
+    "deploy-to-vercel": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "03e0eaaa9bf13ba1e7ffa387f5893de6f324c0868c627001f179395a8feaa7c9"
+    },
     "logo-design-guide": {
       "source": "inferen-sh/skills",
       "sourceType": "github",
@@ -15,6 +20,11 @@
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "computedHash": "9c87c315aed143ee3b34bec8117100f5035e0df09e6b23e1ecc772cff434c9ad"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "43ca6c197f8ec13055079da7053232d477068b03ca443f9ac1bc819b95cdd432"
     }
   }
 }
