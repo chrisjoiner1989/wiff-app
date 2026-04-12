@@ -4,11 +4,15 @@ import { Trophy } from 'lucide-react'
 
 export default async function LeaguesPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: leagues } = await supabase
-    .from('leagues')
-    .select(`*, teams (id)`)
-    .order('created_at', { ascending: false })
+  const { data: leagues } = user
+    ? await supabase
+        .from('leagues')
+        .select(`*, teams (id)`)
+        .eq('commissioner_id', user.id)
+        .order('created_at', { ascending: false })
+    : { data: [] }
 
   return (
     <div className="p-4 space-y-6">

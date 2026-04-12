@@ -7,30 +7,31 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [{ data: liveGames }, { data: upcomingGames }] = await Promise.all([
-    supabase
-      .from('games')
-      .select(`
-        *,
-        home_team:teams!games_home_team_id_fkey (id, name, color_hex, logo_url),
-        away_team:teams!games_away_team_id_fkey (id, name, color_hex, logo_url),
-        league:leagues (id, name)
-      `)
-      .eq('status', 'live')
-      .limit(5),
-    supabase
-      .from('games')
-      .select(`
-        *,
-        home_team:teams!games_home_team_id_fkey (id, name, color_hex, logo_url),
-        away_team:teams!games_away_team_id_fkey (id, name, color_hex, logo_url),
-        league:leagues (id, name)
-      `)
-      .eq('status', 'scheduled')
-      .gte('scheduled_at', new Date().toISOString())
-      .order('scheduled_at', { ascending: true })
-      .limit(5),
-  ])
+  const gameSelect = `
+    *,
+    home_team:teams!games_home_team_id_fkey (id, name, color_hex, logo_url),
+    away_team:teams!games_away_team_id_fkey (id, name, color_hex, logo_url),
+    league:leagues!inner (id, name, commissioner_id)
+  `
+
+  const [{ data: liveGames }, { data: upcomingGames }] = user
+    ? await Promise.all([
+        supabase
+          .from('games')
+          .select(gameSelect)
+          .eq('status', 'live')
+          .eq('league.commissioner_id', user.id)
+          .limit(5),
+        supabase
+          .from('games')
+          .select(gameSelect)
+          .eq('status', 'scheduled')
+          .eq('league.commissioner_id', user.id)
+          .gte('scheduled_at', new Date().toISOString())
+          .order('scheduled_at', { ascending: true })
+          .limit(5),
+      ])
+    : [{ data: [] }, { data: [] }]
 
   const hasGames = (liveGames?.length ?? 0) > 0 || (upcomingGames?.length ?? 0) > 0
 
