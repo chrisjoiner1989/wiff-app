@@ -75,7 +75,7 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
   }, [game.id, supabase])
 
   const isLive = game.status === 'live'
-  const rules = initialGame.league.rules_config
+  const rules = initialGame.league?.rules_config
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,7 +83,7 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
       <div className="bg-card border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">{initialGame.league.name}</p>
+            <p className="text-xs text-muted-foreground">{initialGame.league?.name}</p>
             <h1 className="font-display text-xl font-700 tracking-wide">
               {game.away_team.name} @ {game.home_team.name}
             </h1>
@@ -157,7 +157,7 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
           homeTeam={game.home_team}
           awayTeam={game.away_team}
           innings={innings}
-          totalInnings={rules.innings}
+          totalInnings={rules?.innings}
         />
 
         {/* Play-by-play */}
