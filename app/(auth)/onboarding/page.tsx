@@ -29,7 +29,8 @@ function OnboardingForm() {
 
     const { error } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, full_name: fullName.trim(), updated_at: new Date().toISOString() })
+      .update({ full_name: fullName.trim(), updated_at: new Date().toISOString() })
+      .eq('id', user.id)
 
     setLoading(false)
     if (error) {
