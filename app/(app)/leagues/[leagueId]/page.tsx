@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { StandingsTable } from '@/components/league/StandingsTable'
 import { GameCard } from '@/components/league/GameCard'
 import { Plus, Settings } from 'lucide-react'
+import { RosterImportButton } from '@/components/league/RosterImportButton'
 
 interface Props {
   params: Promise<{ leagueId: string }>
@@ -101,13 +102,16 @@ export default async function LeaguePage({ params }: Props) {
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-display text-xl font-700 tracking-wide">TEAMS</h2>
           {isCommissioner && (
-            <Link
-              href={`/leagues/${leagueId}/teams/new`}
-              className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-md border border-border hover:border-primary/50 transition-colors"
-            >
-              <Plus className="h-3 w-3" aria-hidden="true" />
-              Add Team
-            </Link>
+            <div className="flex items-center gap-2">
+              <RosterImportButton leagueId={leagueId} />
+              <Link
+                href={`/leagues/${leagueId}/teams/new`}
+                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-md border border-border hover:border-primary/50 transition-colors"
+              >
+                <Plus className="h-3 w-3" aria-hidden="true" />
+                Add Team
+              </Link>
+            </div>
           )}
         </div>
         {!league.teams?.length ? (

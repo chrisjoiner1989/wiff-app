@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { Plus, Trash2, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -11,7 +12,13 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH', 'Utility']
+const POSITIONS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH', 'Utility'] as const
+
+const playerSchema = z.object({
+  name: z.string().min(1, 'Name required').max(50, 'Name too long'),
+  number: z.string().regex(/^\d{0,2}$/, 'Must be a number 0–99').optional(),
+  position: z.enum(POSITIONS).optional(),
+})
 
 interface Player {
   id: string
@@ -52,15 +59,19 @@ export default function EditRosterPage() {
   }, [teamId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function addPlayer() {
-    if (!newPlayer.name.trim()) return
+    const result = playerSchema.safeParse(newPlayer)
+    if (!result.success) {
+      toast.error(result.error.errors[0].message)
+      return
+    }
     setAdding(true)
     const { data, error } = await supabase
       .from('players')
       .insert({
         team_id: teamId,
-        name: newPlayer.name.trim(),
-        number: newPlayer.number || null,
-        position: newPlayer.position || null,
+        name: result.data.name.trim(),
+        number: result.data.number || null,
+        position: result.data.position || null,
       })
       .select()
       .single()

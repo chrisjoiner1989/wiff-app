@@ -26,8 +26,35 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Refresh session if exists (no auth gates — all routes are public)
-  await supabase.auth.getUser()
+  // Refresh session if exists
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Guard mutation-only routes — read-only pages remain public
+  const PROTECTED_PATHS = [
+    '/leagues/new',
+    '/profile',
+  ]
+  const PROTECTED_PATTERNS = [
+    /^\/leagues\/[^/]+\/edit(\/|$)/,
+    /^\/leagues\/[^/]+\/teams\/new(\/|$)/,
+    /^\/teams\/[^/]+\/edit(\/|$)/,
+    /^\/games\/[^/]+\/lineup(\/|$)/,
+    /^\/games\/[^/]+\/score(\/|$)/,
+  ]
+
+  if (!user) {
+    const { pathname } = request.nextUrl
+    const isProtected =
+      PROTECTED_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/')) ||
+      PROTECTED_PATTERNS.some((re) => re.test(pathname))
+
+    if (isProtected) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.searchParams.set('redirectTo', pathname)
+      return NextResponse.redirect(url)
+    }
+  }
 
   return supabaseResponse
 }

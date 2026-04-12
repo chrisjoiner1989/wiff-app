@@ -1,7 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+
 import { useParams, useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { toast } from 'sonner'
 import { ChevronLeft } from 'lucide-react'
 import { useCreateTeam } from '@/lib/queries/teams'
@@ -9,6 +12,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+const schema = z.object({
+  name: z.string().min(2, 'Team name must be at least 2 characters').max(50, 'Team name too long'),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid hex color like #1e3a5f'),
+})
+type FormValues = z.infer<typeof schema>
 
 const PRESET_COLORS = [
   '#ef4444', '#f97316', '#eab308', '#22c55e',
@@ -20,16 +29,17 @@ export default function NewTeamPage() {
   const params = useParams()
   const leagueId = params.leagueId as string
   const router = useRouter()
-
-  const [name, setName] = useState('')
-  const [color, setColor] = useState('#1e3a5f')
   const createTeam = useCreateTeam()
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!name.trim()) return
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { name: '', color: '#1e3a5f' },
+  })
+  const color = watch('color')
+
+  async function onSubmit(values: FormValues) {
     await createTeam.mutateAsync(
-      { league_id: leagueId, name: name.trim(), color_hex: color },
+      { league_id: leagueId, name: values.name.trim(), color_hex: values.color },
       {
         onSuccess: (team) => {
           toast.success(`${team.name} created`)
@@ -53,7 +63,7 @@ export default function NewTeamPage() {
         <p className="text-muted-foreground text-sm">Create a new team for this league</p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="font-display text-lg tracking-wide">Team Info</CardTitle>
@@ -64,10 +74,10 @@ export default function NewTeamPage() {
               <Input
                 id="name"
                 placeholder="Yard Bombers"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                {...register('name')}
                 autoFocus
               />
+              {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -77,7 +87,7 @@ export default function NewTeamPage() {
                   <button
                     key={c}
                     type="button"
-                    onClick={() => setColor(c)}
+                    onClick={() => setValue('color', c, { shouldValidate: true })}
                     className="h-10 rounded-md border-2 transition-all"
                     style={{
                       backgroundColor: c,
@@ -92,17 +102,17 @@ export default function NewTeamPage() {
               <div className="flex items-center gap-3 pt-1">
                 <div
                   className="w-10 h-10 rounded-md border border-border shrink-0"
-                  style={{ backgroundColor: color }}
+                  style={{ backgroundColor: /^#[0-9a-fA-F]{6}$/.test(color) ? color : 'transparent' }}
                   aria-hidden="true"
                 />
                 <Input
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
                   placeholder="#1e3a5f"
                   className="font-mono text-sm"
                   maxLength={7}
+                  {...register('color')}
                 />
               </div>
+              {errors.color && <p className="text-xs text-destructive">{errors.color.message}</p>}
             </div>
           </CardContent>
         </Card>
@@ -110,7 +120,7 @@ export default function NewTeamPage() {
         <Button
           type="submit"
           className="w-full h-12 font-display text-lg font-700 tracking-wide"
-          disabled={createTeam.isPending || !name.trim()}
+          disabled={createTeam.isPending}
         >
           {createTeam.isPending ? 'Creating…' : 'CREATE TEAM'}
         </Button>
