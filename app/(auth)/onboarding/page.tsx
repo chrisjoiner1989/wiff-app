@@ -47,13 +47,13 @@ function OnboardingForm() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex justify-center">
-          <Image src="/icons/icon-192.png" width={160} height={160} alt="WIFF" className="rounded-[28px]" />
+          <Image src="/icons/icon-192.png" width={80} height={80} alt="WIFF" className="rounded-2xl" />
         </div>
 
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="font-display text-2xl tracking-wide">Welcome!</CardTitle>
-            <CardDescription>What should we call you?</CardDescription>
+            <CardTitle className="font-display text-xl tracking-wide">Welcome!</CardTitle>
+            <CardDescription>What should we call you in your wiffle ball leagues?</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -68,7 +68,7 @@ function OnboardingForm() {
                   autoFocus
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading || !fullName.trim()}>
+              <Button type="submit" size="lg" className="w-full" disabled={loading || !fullName.trim()}>
                 {loading ? 'Saving…' : 'Get Started'}
               </Button>
             </form>

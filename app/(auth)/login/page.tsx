@@ -88,17 +88,17 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex justify-center">
-          <Image src="/icons/icon-192.png" width={160} height={160} alt="WIFF" className="rounded-[28px]" />
+          <Image src="/icons/icon-192.png" width={80} height={80} alt="WIFF" className="rounded-2xl" />
         </div>
 
         <Card>
           <CardHeader className="pb-4">
-            <CardTitle className="font-display text-2xl tracking-wide">
+            <CardTitle className="font-display text-xl tracking-wide">
               {step === 'email' ? (isSignup ? 'Create Account' : 'Sign In') : 'Enter Code'}
             </CardTitle>
             <CardDescription>
               {step === 'email'
-                ? 'Enter your email to receive a sign-in code.'
+                ? 'Enter your email to sign in to your wiffle ball leagues.'
                 : `We sent a code to ${email}`}
             </CardDescription>
           </CardHeader>
@@ -106,7 +106,7 @@ function LoginForm() {
           <CardContent className="space-y-4">
             {step === 'email' ? (
               <>
-                <form onSubmit={handleSendCode} className="space-y-3">
+                <form onSubmit={handleSendCode} className="space-y-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="email">Email address</Label>
                     <Input
@@ -119,7 +119,7 @@ function LoginForm() {
                       autoComplete="email"
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
                     {loading ? 'Sending…' : 'Send code'}
                   </Button>
                 </form>
@@ -133,7 +133,7 @@ function LoginForm() {
                   </div>
                 </div>
 
-                <Button variant="outline" className="w-full" onClick={handleGoogle} type="button">
+                <Button variant="outline" size="lg" className="w-full" onClick={handleGoogle} type="button">
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -144,7 +144,7 @@ function LoginForm() {
                 </Button>
               </>
             ) : (
-              <form onSubmit={handleVerifyCode} className="space-y-3">
+              <form onSubmit={handleVerifyCode} className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="code">Verification code</Label>
                   <Input
@@ -157,17 +157,18 @@ function LoginForm() {
                     required
                     autoComplete="one-time-code"
                     autoFocus
-                    className="text-center text-2xl tracking-[0.5em] font-mono"
+                    className="h-14 text-center text-2xl tracking-[0.5em] font-mono"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading || code.length < 6}>
+                <Button type="submit" size="lg" className="w-full" disabled={loading || code.length < 6}>
                   {loading ? 'Verifying…' : 'Verify & Sign In'}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full"
+                  className="w-full text-muted-foreground"
                   type="button"
+                  aria-label="Go back and use a different email address"
                   onClick={() => { setStep('email'); setCode('') }}
                 >
                   Use a different email
@@ -176,6 +177,24 @@ function LoginForm() {
             )}
           </CardContent>
         </Card>
+
+        <p className="text-center text-sm text-muted-foreground">
+          {isSignup ? (
+            <>
+              Already have an account?{' '}
+              <a href="/login" className="text-foreground underline underline-offset-4 hover:text-primary">
+                Sign in
+              </a>
+            </>
+          ) : (
+            <>
+              Don&apos;t have an account?{' '}
+              <a href="/login?mode=signup" className="text-foreground underline underline-offset-4 hover:text-primary">
+                Create one
+              </a>
+            </>
+          )}
+        </p>
       </div>
     </div>
   )
