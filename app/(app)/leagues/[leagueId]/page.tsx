@@ -6,6 +6,7 @@ import { StandingsTable } from '@/components/league/StandingsTable'
 import { GameCard } from '@/components/league/GameCard'
 import { Plus, Settings } from 'lucide-react'
 import { RosterImportButton } from '@/components/league/RosterImportButton'
+import { type GameWithTeams } from '@/types/database.types'
 
 interface Props {
   params: Promise<{ leagueId: string }>
@@ -91,7 +92,7 @@ export default async function LeaguePage({ params }: Props) {
           <h2 className="font-display text-xl font-700 tracking-wide mb-3">RECENT GAMES</h2>
           <div className="space-y-2">
             {recentGames.map((game) => (
-              <GameCard key={game.id} game={game as any} showLiveBadge />
+              <GameCard key={game.id} game={game as unknown as GameWithTeams} showLiveBadge />
             ))}
           </div>
         </section>
@@ -129,7 +130,7 @@ export default async function LeaguePage({ params }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2">
-            {league.teams.map((team: any) => (
+            {league.teams.map((team) => (
               <Link
                 key={team.id}
                 href={`/teams/${team.id}`}

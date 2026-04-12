@@ -99,7 +99,7 @@ function LoginForm() {
             <CardDescription>
               {step === 'email'
                 ? 'Enter your email to receive a sign-in code.'
-                : `We sent a 6-digit code to ${email}`}
+                : `We sent a code to ${email}`}
             </CardDescription>
           </CardHeader>
 
@@ -146,14 +146,14 @@ function LoginForm() {
             ) : (
               <form onSubmit={handleVerifyCode} className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="code">6-digit code</Label>
+                  <Label htmlFor="code">Verification code</Label>
                   <Input
                     id="code"
                     type="text"
                     inputMode="numeric"
                     placeholder="123456"
                     value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
                     required
                     autoComplete="one-time-code"
                     autoFocus

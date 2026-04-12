@@ -3,16 +3,12 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Linescore } from '@/components/scoring/Linescore'
-import { type WiffleRulesConfig, type Tables } from '@/types/database.types'
+import { type AtBatWithPlayers, type GameWithTeams } from '@/types/database.types'
+import { RESULT_LABELS_SHORT, HIT_RESULTS } from '@/lib/wiffle/constants'
 import { ChevronLeft, MapPin } from 'lucide-react'
 
 interface Props {
   params: Promise<{ gameId: string }>
-}
-
-const RESULT_LABELS: Record<string, string> = {
-  single: '1B', double: '2B', triple: '3B', hr: 'HR',
-  out: 'Out', k: 'K', walk: 'BB', foul_out: 'FO', hbp: 'HBP', fc: 'FC', error: 'E',
 }
 
 export default async function GameDetailPage({ params }: Props) {
@@ -40,17 +36,13 @@ export default async function GameDetailPage({ params }: Props) {
 
   if (!game) notFound()
 
-  type AtBatRow = Tables<'at_bats'> & {
-    batter: { id: string; name: string; number: string | null } | null
-    pitcher: { id: string; name: string; number: string | null } | null
-  }
-  const typedAtBats = (atBats ?? []) as unknown as AtBatRow[]
-
-  const league = game.league as { id: string; name: string; rules_config: WiffleRulesConfig; commissioner_id: string }
+  const typedGame = game as unknown as GameWithTeams
+  const typedAtBats = (atBats ?? []) as unknown as AtBatWithPlayers[]
+  const league = typedGame.league!
   const isLive = game.status === 'live'
 
   // Group at-bats by inning and half
-  const atBatsByInning: Record<string, AtBatRow[]> = {}
+  const atBatsByInning: Record<string, AtBatWithPlayers[]> = {}
   for (const ab of typedAtBats) {
     const key = `${ab.inning}-${ab.top_bottom}`
     if (!atBatsByInning[key]) atBatsByInning[key] = []
@@ -159,12 +151,12 @@ export default async function GameDetailPage({ params }: Props) {
                               </span>
                             </span>
                             <span className={`text-xs font-display font-700 ${
-                              ab.result && ['single','double','triple','hr'].includes(ab.result)
+                              ab.result && HIT_RESULTS.includes(ab.result)
                                 ? 'text-emerald-400'
                                 : ab.result === 'walk' ? 'text-blue-400'
                                 : 'text-muted-foreground'
                             }`}>
-                              {ab.result ? RESULT_LABELS[ab.result] ?? ab.result : '—'}
+                              {ab.result ? RESULT_LABELS_SHORT[ab.result] ?? ab.result : '—'}
                               {ab.rbi > 0 && ` · ${ab.rbi} RBI`}
                             </span>
                           </div>

@@ -132,12 +132,9 @@ export function isGameOver(
   rules: WiffleRulesConfig
 ): boolean {
   const isLastInning = inning >= rules.innings
-  const isBottomComplete = half === 'bottom'
 
-  if (isLastInning && isBottomComplete && homeScore !== awayScore) return true
-
-  // Walk-off: home team ahead after bottom of last inning
-  if (isLastInning && half === 'bottom' && homeScore > awayScore) return true
+  // Game ends after the bottom of the last inning if scores differ (includes walk-offs)
+  if (isLastInning && half === 'bottom' && homeScore !== awayScore) return true
 
   // Mercy rule check
   if (checkMercyRule(homeScore, awayScore, inning, rules)) return true

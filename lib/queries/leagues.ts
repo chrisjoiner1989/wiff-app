@@ -2,8 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { type InsertTables, type UpdateTables } from '@/types/database.types'
 
-const supabase = createClient()
-
 export const leagueKeys = {
   all: ['leagues'] as const,
   list: () => [...leagueKeys.all, 'list'] as const,
@@ -12,6 +10,7 @@ export const leagueKeys = {
 }
 
 export function useLeagues() {
+  const supabase = createClient()
   return useQuery({
     queryKey: leagueKeys.list(),
     queryFn: async () => {
@@ -26,6 +25,7 @@ export function useLeagues() {
 }
 
 export function useLeague(id: string) {
+  const supabase = createClient()
   return useQuery({
     queryKey: leagueKeys.detail(id),
     queryFn: async () => {
@@ -47,6 +47,7 @@ export function useLeague(id: string) {
 }
 
 export function useLeagueStandings(leagueId: string) {
+  const supabase = createClient()
   return useQuery({
     queryKey: leagueKeys.standings(leagueId),
     queryFn: async () => {
@@ -62,6 +63,7 @@ export function useLeagueStandings(leagueId: string) {
 }
 
 export function useCreateLeague() {
+  const supabase = createClient()
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (input: InsertTables<'leagues'>) => {
@@ -80,6 +82,7 @@ export function useCreateLeague() {
 }
 
 export function useDeleteLeague() {
+  const supabase = createClient()
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
@@ -93,6 +96,7 @@ export function useDeleteLeague() {
 }
 
 export function useUpdateLeague(id: string) {
+  const supabase = createClient()
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (updates: UpdateTables<'leagues'>) => {

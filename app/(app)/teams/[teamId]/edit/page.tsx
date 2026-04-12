@@ -47,10 +47,16 @@ export default function EditRosterPage() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: t }, { data: p }] = await Promise.all([
-        supabase.from('teams').select('id, name, color_hex, league_id').eq('id', teamId).single(),
+      const [{ data: { user } }, { data: t }, { data: p }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from('teams').select('id, name, color_hex, league_id, league:leagues(commissioner_id)').eq('id', teamId).single(),
         supabase.from('players').select('id, name, number, position').eq('team_id', teamId).order('number'),
       ])
+      const league = t?.league as { commissioner_id: string } | null
+      if (!user || !league || league.commissioner_id !== user.id) {
+        router.replace(`/teams/${teamId}`)
+        return
+      }
       setTeam(t)
       setPlayers(p ?? [])
       setLoading(false)

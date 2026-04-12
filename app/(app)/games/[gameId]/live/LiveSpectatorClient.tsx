@@ -5,38 +5,14 @@ import { createClient } from '@/lib/supabase/client'
 import { Linescore } from '@/components/scoring/Linescore'
 import { BaserunnerDiamond } from '@/components/scoring/BaserunnerDiamond'
 import { Badge } from '@/components/ui/badge'
-import { type WiffleRulesConfig, type Tables } from '@/types/database.types'
+import { type Tables, type GameWithTeams, type AtBatWithPlayers } from '@/types/database.types'
+import { RESULT_LABELS, HIT_RESULTS } from '@/lib/wiffle/constants'
 import { toast } from 'sonner'
-
-type GameWithTeams = Tables<'games'> & {
-  home_team: { id: string; name: string; color_hex: string; logo_url: string | null }
-  away_team: { id: string; name: string; color_hex: string; logo_url: string | null }
-  league: { id: string; name: string; rules_config: WiffleRulesConfig }
-}
-
-type AtBatWithPlayers = Tables<'at_bats'> & {
-  batter: { id: string; name: string; number: string | null }
-  pitcher: { id: string; name: string; number: string | null }
-}
 
 interface Props {
   game: GameWithTeams
   innings: Tables<'game_innings'>[]
   recentAtBats: AtBatWithPlayers[]
-}
-
-const RESULT_LABELS: Record<string, string> = {
-  single: '1B — Single',
-  double: '2B — Double',
-  triple: '3B — Triple',
-  hr: 'HOME RUN',
-  out: 'Out',
-  k: 'Strikeout',
-  walk: 'Walk (BB)',
-  foul_out: 'Foul Out',
-  hbp: 'Hit by Pitch',
-  fc: 'Fielder\'s Choice',
-  error: 'Error',
 }
 
 export function LiveSpectatorClient({ game: initialGame, innings: initialInnings, recentAtBats: initialAtBats }: Props) {
@@ -203,7 +179,7 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
                   </div>
                   <span
                     className={`text-xs font-medium ${
-                      ab.result && ['single', 'double', 'triple', 'hr'].includes(ab.result)
+                      ab.result && HIT_RESULTS.includes(ab.result)
                         ? 'text-emerald-400'
                         : ab.result === 'walk'
                         ? 'text-blue-400'

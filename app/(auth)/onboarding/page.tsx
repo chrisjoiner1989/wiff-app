@@ -16,7 +16,10 @@ function OnboardingForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirectTo') ?? '/leagues'
+  const rawRedirect = searchParams.get('redirectTo')
+  const redirectTo = rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+    ? rawRedirect
+    : '/leagues'
   const supabase = createClient()
 
   async function handleSubmit(e: React.FormEvent) {

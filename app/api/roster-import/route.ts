@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { ParsedRosterSchema, POSITIONS, type RosterImportResponse } from '@/lib/roster-import/schema'
+
+const RATE_LIMIT = 5      // max requests
+const WINDOW_HOURS = 1    // per hour
 
 const anthropic = new Anthropic()
 
@@ -69,6 +73,22 @@ export async function POST(req: NextRequest): Promise<NextResponse<RosterImportR
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Rate limit: max 5 requests per user per hour
+  const service = createServiceClient()
+  const windowStart = new Date(Date.now() - WINDOW_HOURS * 60 * 60 * 1000).toISOString()
+  const { count } = await service
+    .from('roster_import_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('created_at', windowStart)
+
+  if ((count ?? 0) >= RATE_LIMIT) {
+    return NextResponse.json(
+      { ok: false, error: `Rate limit reached — max ${RATE_LIMIT} imports per hour` },
+      { status: 429 }
+    )
+  }
+
   try {
     const formData = await req.formData()
     const inputType = formData.get('type') as 'text' | 'image'
@@ -79,6 +99,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<RosterImportR
       const text = formData.get('text') as string
       if (!text?.trim()) {
         return NextResponse.json({ ok: false, error: 'No text provided' }, { status: 400 })
+      }
+      if (text.length > 50_000) {
+        return NextResponse.json({ ok: false, error: 'Text too long (max 50,000 characters)' }, { status: 400 })
       }
       messageContent = [{ type: 'text', text: `Parse this roster:\n\n${text}` }]
     } else {
@@ -118,6 +141,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<RosterImportR
     if (!parsed.success) {
       return NextResponse.json({ ok: false, error: 'Invalid data shape from AI' }, { status: 500 })
     }
+
+    // Record successful use for rate limiting
+    await service.from('roster_import_log').insert({ user_id: user.id })
 
     return NextResponse.json({ ok: true, data: parsed.data })
   } catch (err: unknown) {

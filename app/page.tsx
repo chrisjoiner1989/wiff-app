@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import WiffIcon from '@/assets/wiff-icon.svg'
+import Image from 'next/image'
 
 export default async function RootPage() {
   const supabase = await createClient()
@@ -39,11 +39,12 @@ export default async function RootPage() {
           />
           {/* Icon */}
           <div className="relative animate-in fade-in zoom-in-75 duration-700 fill-mode-both">
-            <WiffIcon
-              className="w-20 h-20 drop-shadow-[0_0_28px_oklch(0.97_0_0/0.3)]"
-              width={undefined}
-              height={undefined}
-              aria-label="WIFF"
+            <Image
+              src="/icons/icon-192.png"
+              width={80}
+              height={80}
+              alt="WIFF"
+              className="rounded-[18px] drop-shadow-[0_0_28px_oklch(0.97_0_0/0.3)]"
             />
           </div>
         </div>

@@ -528,3 +528,32 @@ export type InsertTables<T extends keyof Database['public']['Tables']> =
 
 export type UpdateTables<T extends keyof Database['public']['Tables']> =
   Database['public']['Tables'][T]['Update']
+
+// ─────────────────────────────────────────
+// JOINED TYPES
+// Supabase select() with joins returns shapes not expressible in the base
+// schema. These shared types eliminate local redefinitions across pages.
+// ─────────────────────────────────────────
+export type TeamSummary = {
+  id: string
+  name: string
+  color_hex: string
+  logo_url: string | null
+}
+
+export type PlayerSummary = {
+  id: string
+  name: string
+  number: string | null
+}
+
+export type GameWithTeams = Tables<'games'> & {
+  home_team: TeamSummary
+  away_team: TeamSummary
+  league?: { id: string; name: string; rules_config: WiffleRulesConfig; commissioner_id: string }
+}
+
+export type AtBatWithPlayers = Tables<'at_bats'> & {
+  batter: PlayerSummary | null
+  pitcher: PlayerSummary | null
+}
