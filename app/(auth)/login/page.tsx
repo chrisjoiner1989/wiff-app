@@ -24,6 +24,7 @@ function LoginForm() {
     rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
       ? rawRedirect
       : '/leagues'
+  const isSignup = searchParams.get('mode') === 'signup'
   const supabase = createClient()
 
   async function handleSendCode(e: React.FormEvent) {
@@ -90,7 +91,7 @@ function LoginForm() {
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="font-display text-2xl tracking-wide">
-              {step === 'email' ? 'Sign In' : 'Enter Code'}
+              {step === 'email' ? (isSignup ? 'Create Account' : 'Sign In') : 'Enter Code'}
             </CardTitle>
             <CardDescription>
               {step === 'email'
