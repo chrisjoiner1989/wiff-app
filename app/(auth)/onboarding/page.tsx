@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-import WiffIcon from '@/assets/wiff-icon.svg'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,7 +44,7 @@ function OnboardingForm() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-sm space-y-6">
         <div className="flex justify-center">
-          <WiffIcon className="w-40 h-40" width={undefined} height={undefined} aria-label="WIFF" />
+          <Image src="/icons/icon-192.png" width={160} height={160} alt="WIFF" className="rounded-[28px]" />
         </div>
 
         <Card>
