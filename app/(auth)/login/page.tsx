@@ -46,14 +46,17 @@ function LoginForm() {
   async function handleVerifyCode(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: 'email',
-    })
+
+    // Try 'email' type first (existing users), fall back to 'signup' (new users)
+    let result = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
+    if (result.error) {
+      result = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' })
+    }
+
+    const { data, error } = result
     setLoading(false)
     if (error) {
-      toast.error('Invalid or expired code')
+      toast.error(error.message)
       return
     }
 
