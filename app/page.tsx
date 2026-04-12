@@ -12,93 +12,83 @@ export default async function RootPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between bg-background overflow-hidden px-6 py-12">
-      {/* Top spacer */}
-      <div />
+    <div className="min-h-screen flex flex-col items-center justify-between bg-background px-6 py-16 overflow-hidden">
 
       {/* Hero */}
-      <div className="flex flex-col items-center text-center">
-        {/* Animated rings */}
-        <div className="relative flex items-center justify-center w-56 h-56 mb-8">
+      <div className="flex-1 flex flex-col items-center justify-center text-center gap-8">
+
+        {/* Logo with glow + fade-in */}
+        <div className="relative flex items-center justify-center animate-in fade-in zoom-in-90 duration-700 fill-mode-both">
+          {/* Soft glow halo */}
           <div
-            className="absolute w-56 h-56 rounded-full border border-primary/10 animate-[spin_18s_linear_infinite]"
+            className="absolute w-36 h-36 rounded-full bg-primary/10 blur-3xl animate-pulse"
+            style={{ animationDuration: '3s' }}
             aria-hidden="true"
           />
-          <div
-            className="absolute w-40 h-40 rounded-full border border-primary/15 animate-[spin_12s_linear_infinite_reverse]"
-            aria-hidden="true"
+          <Image
+            src="/icons/icon-192.png"
+            width={96}
+            height={96}
+            alt="WIFF"
+            priority
+            className="relative rounded-[22px] drop-shadow-[0_0_32px_oklch(0.97_0_0/0.18)]"
           />
-          <div
-            className="absolute w-28 h-28 rounded-full border border-primary/25 animate-[spin_8s_linear_infinite]"
-            aria-hidden="true"
-          />
-          {/* Glow */}
-          <div
-            className="absolute w-24 h-24 rounded-full bg-primary/15 blur-2xl animate-pulse"
-            aria-hidden="true"
-          />
-          {/* Icon */}
-          <div className="relative animate-in fade-in zoom-in-75 duration-700 fill-mode-both">
-            <Image
-              src="/icons/icon-192.png"
-              width={80}
-              height={80}
-              alt="WIFF"
-              className="rounded-[18px] drop-shadow-[0_0_28px_oklch(0.97_0_0/0.3)]"
-            />
-          </div>
         </div>
 
-        {/* Title */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
-          <p className="font-display text-base font-700 tracking-widest text-muted-foreground mt-2 uppercase">
+        {/* Wordmark */}
+        <div className="flex flex-col items-center gap-2 animate-in fade-in slide-in-from-bottom-3 duration-600 delay-200 fill-mode-both">
+          <h1 className="font-display font-800 text-5xl tracking-widest uppercase leading-none">
+            Wiff
+          </h1>
+          <p className="font-display text-sm font-600 tracking-[0.25em] text-muted-foreground uppercase">
             Wiffle Ball League Manager
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-1.5 mt-6 animate-in fade-in duration-500 delay-300 fill-mode-both">
-          <span className="w-1 h-1 rounded-full bg-primary/40" />
-          <span className="w-2 h-2 rounded-full bg-primary" />
-          <span className="w-1 h-1 rounded-full bg-primary/40" />
+        {/* Dot divider */}
+        <div className="flex items-center gap-1.5 animate-in fade-in duration-500 delay-400 fill-mode-both">
+          <span className="w-1 h-1 rounded-full bg-primary/30" aria-hidden="true" />
+          <span className="w-2 h-2 rounded-full bg-primary/60" aria-hidden="true" />
+          <span className="w-1 h-1 rounded-full bg-primary/30" aria-hidden="true" />
         </div>
 
-        {/* Feature pills */}
-        <div className="mt-8 space-y-2 w-full max-w-xs animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500 fill-mode-both">
+        {/* Feature list */}
+        <ul className="w-full max-w-xs space-y-2.5 animate-in fade-in slide-in-from-bottom-3 duration-600 delay-500 fill-mode-both">
           {[
             { label: 'Live Scoring', sub: 'Track every at-bat in real time' },
             { label: 'Standings', sub: 'Auto-updated after every game' },
             { label: 'Roster Import', sub: 'Paste or scan your lineup' },
           ].map((f) => (
-            <div
+            <li
               key={f.label}
-              className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border text-left"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-card ring-1 ring-foreground/8 text-left"
             >
-              <span className="w-1.5 h-6 rounded-full bg-primary shrink-0" />
+              <span className="w-1 h-5 rounded-full bg-primary/60 shrink-0" aria-hidden="true" />
               <div>
                 <p className="font-display font-700 text-sm tracking-wide">{f.label}</p>
                 <p className="text-xs text-muted-foreground">{f.sub}</p>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       {/* CTA buttons */}
-      <div className="w-full max-w-xs flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-700 fill-mode-both">
+      <div className="w-full max-w-xs flex flex-col gap-3 pt-10 animate-in fade-in slide-in-from-bottom-4 duration-600 delay-700 fill-mode-both">
         <Link
           href="/login"
-          className="flex items-center justify-center h-13 bg-primary text-primary-foreground rounded-xl font-display font-700 text-lg tracking-wide hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center h-12 rounded-xl bg-primary text-primary-foreground font-display font-700 text-base tracking-widest uppercase hover:opacity-90 active:scale-[0.98] transition-all"
         >
-          SIGN IN
+          Sign In
         </Link>
         <Link
           href="/login?mode=signup"
-          className="flex items-center justify-center h-13 bg-card border border-border rounded-xl font-display font-700 text-base tracking-wide text-foreground hover:border-primary/50 transition-colors"
+          className="flex items-center justify-center h-12 rounded-xl bg-card ring-1 ring-foreground/10 font-display font-700 text-base tracking-widest uppercase text-foreground hover:ring-foreground/25 active:scale-[0.98] transition-all"
         >
-          CREATE ACCOUNT
+          Create Account
         </Link>
       </div>
+
     </div>
   )
 }
