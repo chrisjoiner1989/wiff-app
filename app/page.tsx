@@ -40,19 +40,16 @@ export default async function RootPage() {
           {/* Icon */}
           <div className="relative animate-in fade-in zoom-in-75 duration-700 fill-mode-both">
             <WiffIcon
-              className="w-20 h-20 drop-shadow-[0_0_28px_oklch(0.82_0.18_85/0.5)]"
+              className="w-20 h-20 drop-shadow-[0_0_28px_oklch(0.97_0_0/0.3)]"
               width={undefined}
               height={undefined}
-              aria-hidden="true"
+              aria-label="WIFF"
             />
           </div>
         </div>
 
         {/* Title */}
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
-          <h1 className="font-display text-7xl font-800 tracking-tight text-primary leading-none">
-            WIFF
-          </h1>
           <p className="font-display text-base font-700 tracking-widest text-muted-foreground mt-2 uppercase">
             Wiffle Ball League Manager
           </p>
