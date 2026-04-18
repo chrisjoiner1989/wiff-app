@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
 import { type Tables } from '@/types/database.types'
+import { cn } from '@/lib/utils'
 
 type GameWithTeams = Tables<'games'> & {
   home_team: { id: string; name: string; color_hex: string; logo_url: string | null }
@@ -20,55 +20,85 @@ export function GameCard({ game, showLiveBadge }: GameCardProps) {
 
   const href = isLive ? `/games/${game.id}/live` : `/games/${game.id}`
 
+  const winnerSide =
+    isFinal && game.home_score !== game.away_score
+      ? game.home_score > game.away_score
+        ? 'home'
+        : 'away'
+      : null
+
   return (
     <Link
       href={href}
-      className="block p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+      className={cn(
+        'group relative block rounded-md bg-card border border-border transition-all hover:border-foreground/30 hover:-translate-y-[1px]',
+        isLive && 'border-stitch/50 hover:border-stitch'
+      )}
     >
-      <div className="flex items-center gap-3">
-        {/* Teams + score */}
-        <div className="flex-1 space-y-1.5">
-          <TeamRow
-            name={game.away_team.name}
-            color={game.away_team.color_hex}
-            score={game.away_score}
-            isLive={isLive || isFinal}
-          />
-          <TeamRow
-            name={game.home_team.name}
-            color={game.home_team.color_hex}
-            score={game.home_score}
-            isLive={isLive || isFinal}
-          />
-        </div>
-
-        {/* Status / time column */}
-        <div className="text-right shrink-0 space-y-1">
+      {/* Top status rail */}
+      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+        <div className="flex items-center gap-2 min-w-0">
           {isLive && showLiveBadge && (
-            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
-              LIVE
-            </Badge>
-          )}
-          {isLive && (
-            <p className="text-xs text-muted-foreground">
-              {game.current_half === 'top' ? '▲' : '▼'} {game.current_inning}
-            </p>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-stitch opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-stitch" />
+              </span>
+              <span className="font-display font-800 text-[10px] tracking-[0.24em] uppercase text-stitch">
+                Live
+              </span>
+            </span>
           )}
           {isFinal && (
-            <p className="text-xs text-muted-foreground font-medium">FINAL</p>
+            <span className="font-display font-800 text-[10px] tracking-[0.24em] uppercase text-muted-foreground">
+              Final
+            </span>
           )}
           {isScheduled && (
-            <p className="text-xs text-muted-foreground">
+            <span className="font-display font-700 text-[10px] tracking-[0.22em] uppercase text-muted-foreground">
               {new Date(game.scheduled_at).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
               })}
-            </p>
-          )}
-          {game.league && (
-            <p className="text-[10px] text-muted-foreground">{game.league.name}</p>
+              {' · '}
+              {new Date(game.scheduled_at).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
+            </span>
           )}
         </div>
+
+        {isLive && (
+          <span className="font-display font-700 text-[10px] tracking-[0.14em] uppercase text-muted-foreground tabular-nums">
+            {game.current_half === 'top' ? '▲ Top' : '▼ Bot'} {game.current_inning}
+          </span>
+        )}
+        {game.league && !isLive && (
+          <span className="font-display font-600 text-[9px] tracking-[0.2em] uppercase text-muted-foreground truncate max-w-[40%]">
+            {game.league.name}
+          </span>
+        )}
+      </div>
+
+      {/* Team rows */}
+      <div className="px-3 pb-3 space-y-1">
+        <TeamRow
+          name={game.away_team.name}
+          color={game.away_team.color_hex}
+          score={game.away_score}
+          showScore={isLive || isFinal}
+          dim={winnerSide === 'home'}
+          isWinner={winnerSide === 'away'}
+        />
+        <TeamRow
+          name={game.home_team.name}
+          color={game.home_team.color_hex}
+          score={game.home_score}
+          showScore={isLive || isFinal}
+          dim={winnerSide === 'away'}
+          isWinner={winnerSide === 'home'}
+        />
       </div>
     </Link>
   )
@@ -78,23 +108,41 @@ function TeamRow({
   name,
   color,
   score,
-  isLive,
+  showScore,
+  dim,
+  isWinner,
 }: {
   name: string
   color: string
   score: number
-  isLive: boolean
+  showScore: boolean
+  dim: boolean
+  isWinner: boolean
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className={cn(
+        'flex items-center gap-2.5 transition-opacity',
+        dim && 'opacity-55'
+      )}
+    >
       <span
-        className="w-2.5 h-2.5 rounded-sm shrink-0"
+        className="w-1 h-6 rounded-full shrink-0"
         style={{ backgroundColor: color }}
         aria-hidden="true"
       />
-      <span className="text-sm font-medium flex-1 truncate">{name}</span>
-      {isLive && (
-        <span className="text-sm font-display font-700 tabular-nums">{score}</span>
+      <span className="font-display font-700 text-sm tracking-wide uppercase flex-1 truncate">
+        {name}
+      </span>
+      {showScore && (
+        <span
+          className={cn(
+            'font-mono font-700 tabular-nums text-xl leading-none w-8 text-right',
+            isWinner && 'text-stitch'
+          )}
+        >
+          {score}
+        </span>
       )}
     </div>
   )

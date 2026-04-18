@@ -12,10 +12,17 @@
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-heading: var(--font-display);
-  /* Wiff brand colors */
-  --color-navy: var(--navy);
-  --color-gold: var(--gold);
-  --color-gold-foreground: var(--gold-foreground);
+
+  /* Wiff — Dugout palette aliases */
+  --color-cream: var(--cream);
+  --color-ink: var(--ink);
+  --color-stitch: var(--stitch);
+  --color-stitch-foreground: var(--stitch-foreground);
+  --color-pennant: var(--pennant);
+  --color-pennant-foreground: var(--pennant-foreground);
+  --color-brass: var(--brass);
+  --color-clay: var(--clay);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -54,78 +61,109 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ============================================================
+   DUGOUT — light mode (cream paper, ink, stitch red, pennant green)
+   ============================================================ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Brand primitives */
+  --cream: oklch(0.955 0.018 82);         /* #F5EFE4 warm paper */
+  --ink: oklch(0.18 0.008 60);            /* #1A1817 warm near-black */
+  --stitch: oklch(0.55 0.195 25);         /* #C8102E vintage ball-stitch red */
+  --stitch-foreground: oklch(0.97 0.01 82);
+  --pennant: oklch(0.38 0.065 155);       /* #0B3D2E pennant green */
+  --pennant-foreground: oklch(0.97 0.01 82);
+  --brass: oklch(0.72 0.12 80);           /* aged brass accent */
+  --clay: oklch(0.58 0.14 40);            /* terracotta for warnings */
+
+  /* Semantic tokens mapped to primitives */
+  --background: var(--cream);
+  --foreground: var(--ink);
+  --card: oklch(0.985 0.012 85);          /* slightly whiter card paper */
+  --card-foreground: var(--ink);
+  --popover: oklch(0.985 0.012 85);
+  --popover-foreground: var(--ink);
+
+  --primary: var(--ink);                   /* ink is primary — used for buttons/wordmark */
+  --primary-foreground: var(--cream);
+  --secondary: oklch(0.92 0.018 80);       /* toasted paper */
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.92 0.014 80);
+  --muted-foreground: oklch(0.45 0.012 60);
+  --accent: var(--stitch);                 /* stitch red as the ONE pop accent */
+  --accent-foreground: var(--stitch-foreground);
+
+  --destructive: var(--clay);
+  --border: oklch(0.18 0.008 60 / 12%);    /* ink at 12% — warm hairlines */
+  --input: oklch(0.18 0.008 60 / 10%);
+  --ring: var(--stitch);
+
+  /* Charts — sport-card palette */
+  --chart-1: var(--stitch);
+  --chart-2: var(--pennant);
+  --chart-3: var(--brass);
+  --chart-4: var(--clay);
+  --chart-5: oklch(0.45 0.012 60);
+
+  --radius: 0.5rem;                         /* slightly tighter — feels more print-y */
+
+  --sidebar: oklch(0.93 0.016 82);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: var(--stitch);
+  --sidebar-accent-foreground: var(--stitch-foreground);
+  --sidebar-border: oklch(0.18 0.008 60 / 12%);
+  --sidebar-ring: var(--stitch);
 }
 
+/* ============================================================
+   DUGOUT — dark mode (night game — ink field, ember stitch)
+   ============================================================ */
 .dark {
-  /* Pure black/white — matches app icon palette */
-  --background: oklch(0.08 0 0);            /* near-black #111 */
-  --foreground: oklch(0.97 0 0);            /* near-white */
-  --card: oklch(0.13 0 0);                  /* dark grey card */
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.13 0 0);
-  --popover-foreground: oklch(0.97 0 0);
-  --primary: oklch(0.97 0 0);              /* white */
-  --primary-foreground: oklch(0.08 0 0);   /* black */
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.22 0 0);
-  --accent-foreground: oklch(0.97 0 0);
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.97 0 0);
-  --chart-1: oklch(0.97 0 0);
-  --chart-2: oklch(0.75 0 0);
-  --chart-3: oklch(0.55 0 0);
-  --chart-4: oklch(0.38 0 0);
-  --chart-5: oklch(0.25 0 0);
-  --sidebar: oklch(0.11 0 0);
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.97 0 0);
-  --sidebar-primary-foreground: oklch(0.08 0 0);
-  --sidebar-accent: oklch(0.18 0 0);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.97 0 0);
-  /* Brand aliases */
-  --navy: oklch(0.08 0 0);
-  --gold: oklch(0.97 0 0);
-  --gold-foreground: oklch(0.08 0 0);
+  --cream: oklch(0.955 0.018 82);
+  --ink: oklch(0.12 0.006 60);
+  --stitch: oklch(0.62 0.21 28);           /* ember — slightly brighter for contrast */
+  --stitch-foreground: oklch(0.14 0.01 60);
+  --pennant: oklch(0.55 0.12 160);
+  --pennant-foreground: oklch(0.14 0.01 60);
+  --brass: oklch(0.78 0.13 82);
+  --clay: oklch(0.65 0.17 38);
+
+  --background: oklch(0.11 0.006 60);
+  --foreground: oklch(0.95 0.012 82);
+  --card: oklch(0.16 0.008 60);
+  --card-foreground: oklch(0.95 0.012 82);
+  --popover: oklch(0.16 0.008 60);
+  --popover-foreground: oklch(0.95 0.012 82);
+
+  --primary: oklch(0.95 0.012 82);
+  --primary-foreground: oklch(0.11 0.006 60);
+  --secondary: oklch(0.2 0.008 60);
+  --secondary-foreground: oklch(0.95 0.012 82);
+  --muted: oklch(0.2 0.008 60);
+  --muted-foreground: oklch(0.62 0.012 60);
+  --accent: var(--stitch);
+  --accent-foreground: var(--stitch-foreground);
+
+  --destructive: var(--clay);
+  --border: oklch(0.95 0.012 82 / 12%);
+  --input: oklch(0.95 0.012 82 / 10%);
+  --ring: var(--stitch);
+
+  --chart-1: var(--stitch);
+  --chart-2: var(--pennant);
+  --chart-3: var(--brass);
+  --chart-4: var(--clay);
+  --chart-5: oklch(0.62 0.012 60);
+
+  --sidebar: oklch(0.13 0.006 60);
+  --sidebar-foreground: oklch(0.95 0.012 82);
+  --sidebar-primary: oklch(0.95 0.012 82);
+  --sidebar-primary-foreground: oklch(0.11 0.006 60);
+  --sidebar-accent: var(--stitch);
+  --sidebar-accent-foreground: var(--stitch-foreground);
+  --sidebar-border: oklch(0.95 0.012 82 / 12%);
+  --sidebar-ring: var(--stitch);
 }
 
 @layer base {
@@ -135,6 +173,19 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body, sans-serif);
+    /* Subtle paper grain — SVG noise rendered at 2% */
+    background-image:
+      radial-gradient(
+        at 100% 0%,
+        oklch(from var(--stitch) l c h / 0.04) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        at 0% 100%,
+        oklch(from var(--pennant) l c h / 0.04) 0%,
+        transparent 40%
+      );
+    background-attachment: fixed;
   }
   html {
     @apply font-sans;
@@ -148,15 +199,58 @@
   .font-display {
     font-family: var(--font-display, sans-serif);
   }
-  /* Numeric font-weight utilities for display type */
-  .font-700 {
-    font-weight: 700;
+  .font-mono {
+    font-family: var(--font-mono, ui-monospace, monospace);
   }
-  .font-800 {
-    font-weight: 800;
-  }
-  /* Tabular numbers for score displays */
+  .font-700 { font-weight: 700; }
+  .font-800 { font-weight: 800; }
+
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ========== Dugout motifs ========== */
+
+  /* Baseball stitch — two rows of slanted red dashes, scorecard-style */
+  .stitch-rule {
+    --stitch-color: var(--stitch);
+    height: 10px;
+    background-image:
+      linear-gradient(115deg, transparent 40%, var(--stitch-color) 40%, var(--stitch-color) 60%, transparent 60%);
+    background-size: 12px 10px;
+    background-repeat: repeat-x;
+    opacity: 0.85;
+  }
+
+  /* Scorecard grid — used in empty states and section backgrounds */
+  .scorecard-grid {
+    background-image:
+      linear-gradient(to right, oklch(from var(--ink) l c h / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(from var(--ink) l c h / 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Paper grain overlay — apply on hero surfaces */
+  .paper {
+    position: relative;
+  }
+  .paper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* Pennant-shaped badge — triangle cut on the right */
+  .pennant-badge {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%);
+  }
+
+  /* Vintage card — dog-eared upper-right corner */
+  .card-dogear {
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
   }
 }

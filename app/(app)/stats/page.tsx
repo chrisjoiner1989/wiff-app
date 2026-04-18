@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { BattingStatsTable } from '@/components/stats/BattingStatsTable'
 import { PitchingStatsTable } from '@/components/stats/PitchingStatsTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BarChart2 } from 'lucide-react'
 
 export default async function StatsPage() {
   const supabase = await createClient()
@@ -23,36 +22,63 @@ export default async function StatsPage() {
     : [{ data: null }, { data: null }]
 
   return (
-    <div className="p-4 space-y-4">
-      <header className="pt-2">
-        <h1 className="font-display text-4xl font-800 tracking-tight">STATS</h1>
+    <div className="min-h-screen">
+      <header className="px-5 pt-6 pb-4">
+        <p className="font-display text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-700">
+          League Leaders
+        </p>
+        <h1 className="font-display text-5xl font-800 tracking-tight uppercase mt-0.5 leading-none">
+          Stats<span className="text-stitch">.</span>
+        </h1>
         {recentLeagues?.[0] && (
-          <p className="text-muted-foreground text-sm">
+          <p className="font-display text-[11px] tracking-[0.22em] uppercase text-muted-foreground font-700 mt-2">
             {recentLeagues[0].name} · {recentLeagues[0].season}
           </p>
         )}
+        <div aria-hidden="true" className="stitch-rule mt-4 opacity-85" />
       </header>
 
-      {!leagueId ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <BarChart2 className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-display text-xl font-700">NO STATS YET</p>
-          <p className="text-sm mt-1">Create a league and play some games to see stats here.</p>
-        </div>
-      ) : (
-        <Tabs defaultValue="batting">
-          <TabsList className="w-full">
-            <TabsTrigger value="batting" className="flex-1">Batting</TabsTrigger>
-            <TabsTrigger value="pitching" className="flex-1">Pitching</TabsTrigger>
-          </TabsList>
-          <TabsContent value="batting" className="mt-4">
-            <BattingStatsTable stats={batting ?? []} />
-          </TabsContent>
-          <TabsContent value="pitching" className="mt-4">
-            <PitchingStatsTable stats={pitching ?? []} />
-          </TabsContent>
-        </Tabs>
-      )}
+      <div className="px-4 pb-6">
+        {!leagueId ? (
+          <div className="relative rounded-md border border-border bg-card overflow-hidden mt-2">
+            <div aria-hidden="true" className="stitch-rule opacity-80" />
+            <div className="p-8 text-center space-y-3">
+              <span className="inline-block pennant-badge bg-pennant text-pennant-foreground font-display text-[10px] tracking-[0.28em] uppercase font-800 px-3 py-1.5 pr-6">
+                Warmups
+              </span>
+              <h2 className="font-display text-2xl font-800 tracking-tight uppercase leading-tight">
+                No stats yet.
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                Create a league and play some games to fill the back of the card.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <Tabs defaultValue="batting">
+            <TabsList className="w-full">
+              <TabsTrigger
+                value="batting"
+                className="flex-1 font-display text-[11px] tracking-[0.22em] uppercase font-700"
+              >
+                Batting
+              </TabsTrigger>
+              <TabsTrigger
+                value="pitching"
+                className="flex-1 font-display text-[11px] tracking-[0.22em] uppercase font-700"
+              >
+                Pitching
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="batting" className="mt-4">
+              <BattingStatsTable stats={batting ?? []} />
+            </TabsContent>
+            <TabsContent value="pitching" className="mt-4">
+              <PitchingStatsTable stats={pitching ?? []} />
+            </TabsContent>
+          </Tabs>
+        )}
+      </div>
     </div>
   )
 }

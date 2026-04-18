@@ -2,12 +2,10 @@
 
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 
 type Step = 'email' | 'code'
@@ -47,7 +45,6 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
 
-    // Try 'email' type first (existing users), fall back to 'signup' (new users)
     let result = await supabase.auth.verifyOtp({ email, token: code, type: 'email' })
     if (result.error) {
       result = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' })
@@ -60,7 +57,6 @@ function LoginForm() {
       return
     }
 
-    // Check if new user needs onboarding
     const { data: profile } = await supabase
       .from('profiles')
       .select('full_name')
@@ -85,30 +81,57 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="flex justify-center">
-          <Image src="/icons/icon-192.png" width={80} height={80} alt="WIFF" className="rounded-2xl" />
+    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden paper">
+      {/* Scorecard grid bleed in the corners */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 scorecard-grid opacity-40"
+        style={{
+          maskImage:
+            'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, black 100%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, black 100%)',
+        }}
+      />
+
+      <div className="relative w-full max-w-sm">
+        {/* Wordmark */}
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-top-2 duration-500 fill-mode-both">
+          <div className="font-display font-800 text-5xl leading-none tracking-tight uppercase">
+            Wiff<span className="text-stitch">.</span>
+          </div>
+          <div className="mt-2 font-display text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-700">
+            Commissioner's Office
+          </div>
         </div>
 
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="font-display text-xl tracking-wide">
-              {step === 'email' ? (isSignup ? 'Create Account' : 'Sign In') : 'Enter Code'}
-            </CardTitle>
-            <CardDescription>
-              {step === 'email'
-                ? 'Enter your email to sign in to your wiffle ball leagues.'
-                : `We sent a code to ${email}`}
-            </CardDescription>
-          </CardHeader>
+        <div className="relative bg-card rounded-md border border-border overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-600 fill-mode-both">
+          <div aria-hidden="true" className="stitch-rule opacity-80" />
 
-          <CardContent className="space-y-4">
+          <div className="px-6 pt-5 pb-2">
+            <div className="flex items-center justify-between mb-1">
+              <h1 className="font-display font-800 text-lg tracking-[0.14em] uppercase">
+                {step === 'email' ? (isSignup ? 'Start a League' : 'Step Up') : 'Enter Code'}
+              </h1>
+              <span className="font-display text-[9px] tracking-[0.24em] uppercase text-muted-foreground font-700">
+                {step === 'email' ? '1 / 2' : '2 / 2'}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {step === 'email'
+                ? 'Enter your email to run or join a wiffle ball league.'
+                : <>Six-digit code sent to <span className="text-foreground font-500">{email}</span></>}
+            </p>
+          </div>
+
+          <div className="px-6 py-5 space-y-4">
             {step === 'email' ? (
               <>
                 <form onSubmit={handleSendCode} className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="email">Email address</Label>
+                    <Label htmlFor="email" className="font-display text-[10px] tracking-[0.22em] uppercase font-700 text-muted-foreground">
+                      Email Address
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -117,36 +140,41 @@ function LoginForm() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       autoComplete="email"
+                      className="h-11"
                     />
                   </div>
-                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                    {loading ? 'Sending…' : 'Send code'}
+                  <Button type="submit" variant="stitch" size="lg" className="w-full h-12 text-sm" disabled={loading}>
+                    {loading ? 'Sending…' : 'Send Code'}
                   </Button>
                 </form>
 
-                <div className="relative">
+                <div className="relative py-1">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-border" />
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  <div className="relative flex justify-center">
+                    <span className="bg-card px-3 font-display text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-700">
+                      Or
+                    </span>
                   </div>
                 </div>
 
-                <Button variant="outline" size="lg" className="w-full" onClick={handleGoogle} type="button">
+                <Button variant="outline" size="lg" className="w-full h-12 text-sm" onClick={handleGoogle} type="button">
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
-                  Continue with Google
+                  Google
                 </Button>
               </>
             ) : (
               <form onSubmit={handleVerifyCode} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="code">Verification code</Label>
+                  <Label htmlFor="code" className="font-display text-[10px] tracking-[0.22em] uppercase font-700 text-muted-foreground">
+                    Verification Code
+                  </Label>
                   <Input
                     id="code"
                     type="text"
@@ -157,40 +185,39 @@ function LoginForm() {
                     required
                     autoComplete="one-time-code"
                     autoFocus
-                    className="h-14 text-center text-2xl tracking-[0.5em] font-mono"
+                    className="h-16 text-center text-3xl tracking-[0.5em] font-mono font-700"
                   />
                 </div>
-                <Button type="submit" size="lg" className="w-full" disabled={loading || code.length < 6}>
-                  {loading ? 'Verifying…' : 'Verify & Sign In'}
+                <Button type="submit" variant="stitch" size="lg" className="w-full h-12 text-sm" disabled={loading || code.length < 6}>
+                  {loading ? 'Verifying…' : 'Play Ball'}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full text-muted-foreground"
+                  className="w-full text-muted-foreground tracking-[0.14em] text-xs"
                   type="button"
-                  aria-label="Go back and use a different email address"
                   onClick={() => { setStep('email'); setCode('') }}
                 >
                   Use a different email
                 </Button>
               </form>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground mt-6">
           {isSignup ? (
             <>
-              Already have an account?{' '}
-              <a href="/login" className="text-foreground underline underline-offset-4 hover:text-primary">
+              Already in the league?{' '}
+              <a href="/login" className="text-stitch underline underline-offset-4 font-500">
                 Sign in
               </a>
             </>
           ) : (
             <>
-              Don&apos;t have an account?{' '}
-              <a href="/login?mode=signup" className="text-foreground underline underline-offset-4 hover:text-primary">
-                Create one
+              New to Wiff?{' '}
+              <a href="/login?mode=signup" className="text-stitch underline underline-offset-4 font-500">
+                Start a league
               </a>
             </>
           )}

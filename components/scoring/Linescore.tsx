@@ -31,111 +31,145 @@ export function Linescore({
   return (
     <div
       className={cn(
-        'overflow-x-auto rounded-lg border border-border bg-card font-display',
+        'relative overflow-x-auto rounded-md border border-border bg-card',
         className
       )}
       role="table"
       aria-label="Linescore"
     >
-      <table className="w-full text-sm min-w-max">
+      {/* Stitch rule up top — the scorecard header */}
+      <div aria-hidden="true" className="stitch-rule opacity-80" />
+
+      <table className="w-full text-sm min-w-max font-mono">
         <thead>
-          <tr className="border-b border-border text-muted-foreground text-xs">
-            <th className="text-left px-3 py-2 w-28 font-medium sticky left-0 bg-card z-10">
-              TEAM
+          <tr className="border-b-2 border-border text-muted-foreground">
+            <th className="text-left px-3 py-2.5 w-28 font-display font-700 tracking-[0.14em] uppercase text-[10px] sticky left-0 bg-card z-10">
+              Team
             </th>
             {inningNums.map((n) => (
-              <th key={n} className="px-2 py-2 w-8 text-center font-medium">
+              <th
+                key={n}
+                className="px-2 py-2.5 w-9 text-center font-display font-700 text-[11px] tabular-nums"
+              >
                 {n}
               </th>
             ))}
-            <th className="px-2 py-2 w-8 text-center font-semibold text-foreground border-l border-border">
+            <th className="px-2 py-2.5 w-10 text-center font-display font-800 text-stitch text-[12px] border-l-2 border-border">
               R
             </th>
-            <th className="px-2 py-2 w-8 text-center font-medium">H</th>
-            <th className="px-2 py-2 w-8 text-center font-medium">E</th>
+            <th className="px-2 py-2.5 w-9 text-center font-display font-700 text-[11px]">
+              H
+            </th>
+            <th className="px-2 py-2.5 w-9 text-center font-display font-700 text-[11px] pr-3">
+              E
+            </th>
           </tr>
         </thead>
         <tbody>
-          {/* Away row */}
-          <tr className="border-b border-border/50">
-            <td className="px-3 py-2 font-semibold text-sm sticky left-0 bg-card z-10 flex items-center gap-2">
-              <span
-                className="w-2 h-2 rounded-sm"
-                style={{ backgroundColor: awayTeam.color_hex }}
-                aria-hidden="true"
-              />
-              <span className="truncate max-w-[80px]">{awayTeam.name}</span>
-            </td>
-            {inningNums.map((n) => {
-              const runs = getInningRuns(n, 'away')
-              const isCurrent = n === game.current_inning && game.current_half === 'top' && game.status === 'live'
-              return (
-                <td
-                  key={n}
-                  className={cn(
-                    'px-2 py-2 text-center tabular-nums',
-                    isCurrent && 'bg-primary/10 text-primary font-semibold'
-                  )}
-                >
-                  {runs !== null ? runs : (n < game.current_inning ? '0' : '–')}
-                </td>
-              )
-            })}
-            <td className="px-2 py-2 text-center font-display font-700 text-base border-l border-border tabular-nums">
-              {game.away_score}
-            </td>
-            <td className="px-2 py-2 text-center tabular-nums text-muted-foreground">
-              {innings.reduce((sum, i) => sum + i.away_hits, 0)}
-            </td>
-            <td className="px-2 py-2 text-center tabular-nums text-muted-foreground">
-              {innings.reduce((sum, i) => sum + i.away_errors, 0)}
-            </td>
-          </tr>
-
-          {/* Home row */}
-          <tr>
-            <td className="px-3 py-2 font-semibold text-sm sticky left-0 bg-card z-10 flex items-center gap-2">
-              <span
-                className="w-2 h-2 rounded-sm"
-                style={{ backgroundColor: homeTeam.color_hex }}
-                aria-hidden="true"
-              />
-              <span className="truncate max-w-[80px]">{homeTeam.name}</span>
-            </td>
-            {inningNums.map((n) => {
-              const runs = getInningRuns(n, 'home')
-              const isCurrent = n === game.current_inning && game.current_half === 'bottom' && game.status === 'live'
-              return (
-                <td
-                  key={n}
-                  className={cn(
-                    'px-2 py-2 text-center tabular-nums',
-                    isCurrent && 'bg-primary/10 text-primary font-semibold'
-                  )}
-                >
-                  {runs !== null ? runs : (n < game.current_inning ? '0' : '–')}
-                </td>
-              )
-            })}
-            <td className="px-2 py-2 text-center font-display font-700 text-base border-l border-border tabular-nums">
-              {game.home_score}
-            </td>
-            <td className="px-2 py-2 text-center tabular-nums text-muted-foreground">
-              {innings.reduce((sum, i) => sum + i.home_hits, 0)}
-            </td>
-            <td className="px-2 py-2 text-center tabular-nums text-muted-foreground">
-              {innings.reduce((sum, i) => sum + i.home_errors, 0)}
-            </td>
-          </tr>
+          <TeamRow
+            side="away"
+            name={awayTeam.name}
+            color={awayTeam.color_hex}
+            score={game.away_score}
+            hits={innings.reduce((s, i) => s + i.away_hits, 0)}
+            errors={innings.reduce((s, i) => s + i.away_errors, 0)}
+            inningNums={inningNums}
+            getRuns={(n) => getInningRuns(n, 'away')}
+            currentInning={game.current_inning}
+            isCurrentHalf={game.current_half === 'top' && game.status === 'live'}
+          />
+          <TeamRow
+            side="home"
+            name={homeTeam.name}
+            color={homeTeam.color_hex}
+            score={game.home_score}
+            hits={innings.reduce((s, i) => s + i.home_hits, 0)}
+            errors={innings.reduce((s, i) => s + i.home_errors, 0)}
+            inningNums={inningNums}
+            getRuns={(n) => getInningRuns(n, 'home')}
+            currentInning={game.current_inning}
+            isCurrentHalf={game.current_half === 'bottom' && game.status === 'live'}
+          />
         </tbody>
       </table>
     </div>
   )
 }
 
+function TeamRow({
+  name,
+  color,
+  score,
+  hits,
+  errors,
+  inningNums,
+  getRuns,
+  currentInning,
+  isCurrentHalf,
+  side,
+}: {
+  name: string
+  color: string
+  score: number
+  hits: number
+  errors: number
+  inningNums: number[]
+  getRuns: (n: number) => number | null
+  currentInning: number
+  isCurrentHalf: boolean
+  side: 'home' | 'away'
+}) {
+  return (
+    <tr
+      className={cn(
+        'border-b border-border/60 last:border-0',
+        side === 'away' && 'border-b-2'
+      )}
+    >
+      <td className="px-3 py-2.5 sticky left-0 bg-card z-10">
+        <div className="flex items-center gap-2">
+          <span
+            className="w-2.5 h-5 rounded-[2px] shrink-0"
+            style={{ backgroundColor: color }}
+            aria-hidden="true"
+          />
+          <span className="font-display font-700 text-sm tracking-wide uppercase truncate max-w-[90px]">
+            {name}
+          </span>
+        </div>
+      </td>
+      {inningNums.map((n) => {
+        const runs = getRuns(n)
+        const isCurrent = n === currentInning && isCurrentHalf
+        return (
+          <td
+            key={n}
+            className={cn(
+              'px-2 py-2.5 text-center tabular-nums text-base font-500',
+              isCurrent &&
+                'bg-stitch/10 text-stitch font-800 ring-1 ring-inset ring-stitch/30'
+            )}
+          >
+            {runs !== null ? runs : n < currentInning ? '0' : '·'}
+          </td>
+        )
+      })}
+      <td className="px-2 py-2.5 text-center font-display font-800 text-xl border-l-2 border-border tabular-nums">
+        {score}
+      </td>
+      <td className="px-2 py-2.5 text-center tabular-nums text-muted-foreground text-sm">
+        {hits}
+      </td>
+      <td className="px-2 py-2.5 pr-3 text-center tabular-nums text-muted-foreground text-sm">
+        {errors}
+      </td>
+    </tr>
+  )
+}
+
 export function LinescoreSkeleton() {
   return (
-    <div className="rounded-lg border border-border bg-card p-3 space-y-2">
+    <div className="rounded-md border border-border bg-card p-3 space-y-2">
       <Skeleton className="h-6 w-full" />
       <Skeleton className="h-8 w-full" />
       <Skeleton className="h-8 w-full" />

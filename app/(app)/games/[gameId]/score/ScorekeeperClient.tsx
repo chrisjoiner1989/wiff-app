@@ -4,14 +4,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Undo2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Linescore } from '@/components/scoring/Linescore'
 import { BaserunnerDiamond } from '@/components/scoring/BaserunnerDiamond'
 import { useGameScoringStore } from '@/lib/stores/gameScoringStore'
 import { advanceRunners, isHit, isOut, isGameOver } from '@/lib/wiffle/rulesEngine'
 import { createClient } from '@/lib/supabase/client'
 import { type AtBatResult, type WiffleRulesConfig, type Tables } from '@/types/database.types'
+import { cn } from '@/lib/utils'
 
 type GameWithTeams = Tables<'games'> & {
   home_team: { id: string; name: string; color_hex: string; logo_url: string | null }
@@ -29,16 +28,34 @@ interface Props {
   innings: Tables<'game_innings'>[]
 }
 
-const AT_BAT_BUTTONS: { label: string; result: AtBatResult; color: string }[] = [
-  { label: '1B', result: 'single', color: 'bg-emerald-700 hover:bg-emerald-600' },
-  { label: '2B', result: 'double', color: 'bg-emerald-700 hover:bg-emerald-600' },
-  { label: '3B', result: 'triple', color: 'bg-emerald-700 hover:bg-emerald-600' },
-  { label: 'HR', result: 'hr', color: 'bg-yellow-600 hover:bg-yellow-500' },
-  { label: 'OUT', result: 'out', color: 'bg-slate-700 hover:bg-slate-600' },
-  { label: 'K', result: 'k', color: 'bg-slate-700 hover:bg-slate-600' },
-  { label: 'WALK', result: 'walk', color: 'bg-blue-700 hover:bg-blue-600' },
-  { label: 'FOUL OUT', result: 'foul_out', color: 'bg-slate-700 hover:bg-slate-600' },
+/**
+ * Dugout button palette:
+ * - hits: pennant green
+ * - HR: stitch red (the hero)
+ * - outs: neutral ink
+ * - walk: brass
+ */
+const AT_BAT_BUTTONS: {
+  label: string
+  result: AtBatResult
+  tone: 'hit' | 'hr' | 'out' | 'walk'
+}[] = [
+  { label: '1B', result: 'single', tone: 'hit' },
+  { label: '2B', result: 'double', tone: 'hit' },
+  { label: '3B', result: 'triple', tone: 'hit' },
+  { label: 'HR', result: 'hr', tone: 'hr' },
+  { label: 'Out', result: 'out', tone: 'out' },
+  { label: 'K', result: 'k', tone: 'out' },
+  { label: 'Walk', result: 'walk', tone: 'walk' },
+  { label: 'Foul Out', result: 'foul_out', tone: 'out' },
 ]
+
+const toneClass: Record<string, string> = {
+  hit: 'bg-pennant text-pennant-foreground hover:bg-pennant/90',
+  hr: 'bg-stitch text-stitch-foreground hover:bg-stitch/90 shadow-[0_2px_0_oklch(0_0_0/0.1)]',
+  out: 'bg-card text-foreground ring-1 ring-border hover:ring-foreground/40',
+  walk: 'bg-brass/90 text-ink hover:bg-brass',
+}
 
 export function ScorekeeperClient({ game: initialGame, lineups, innings: initialInnings }: Props) {
   const supabase = createClient()
@@ -51,12 +68,10 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
 
   const rules = initialGame.league.rules_config
 
-  // Initialize store from server state
   useEffect(() => {
     store.initGame(initialGame)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Current team batting
   const battingTeamId =
     store.half === 'top' ? initialGame.away_team.id : initialGame.home_team.id
 
@@ -67,7 +82,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     .filter((l) => l.team_id === battingTeamId)
     .sort((a, b) => a.batting_order - b.batting_order)
 
-  // Fall back to first fielding player if no one is explicitly marked as pitcher
   const fieldingLineup = lineups.filter((l) => l.team_id === fieldingTeamId)
   const pitcher =
     fieldingLineup.find((l) => l.is_pitcher) ?? fieldingLineup[0] ?? null
@@ -92,7 +106,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     }
     setSaving(true)
 
-    // Snapshot current store state before any mutations
     const snapInning = store.inning
     const snapHalf = store.half
     const snapOuts = store.outs
@@ -115,12 +128,10 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     const sideRetired = newOuts >= 3
     const gameOver = isGameOver(newHomeScore, newAwayScore, snapInning, snapHalf, rules)
 
-    // Compute next inning/half from snapshot — never from store after mutation
     const nextHalf = snapHalf === 'top' ? 'bottom' : 'top'
     const nextInning = snapHalf === 'bottom' ? snapInning + 1 : snapInning
 
     try {
-      // Insert at_bat
       const { data: atBat, error: abError } = await supabase
         .from('at_bats')
         .insert({
@@ -139,7 +150,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
       if (abError) throw abError
       setLastAtBatId(atBat.id)
 
-      // Upsert game_innings using local state as base (incremental delta)
       const existingInning = innings.find((i) => i.inning === snapInning) ?? {
         game_id: initialGame.id,
         inning: snapInning,
@@ -175,7 +185,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         return [...prev, updatedInning as Tables<'game_innings'>]
       })
 
-      // Build game row update from snapshot values — not from store
       const gameState: Partial<Tables<'games'>> = {
         home_score: newHomeScore,
         away_score: newAwayScore,
@@ -195,7 +204,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
 
       if (gameError) throw gameError
 
-      // Now update store — all values derived from snapshot, not stale store reads
       store.updateScore(newHomeScore, newAwayScore)
 
       if (gameOver || sideRetired) {
@@ -238,7 +246,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     if (!lastAtBatId || saving) return
     setSaving(true)
     try {
-      // Fetch the at_bat we're undoing so we know what to reverse
       const { data: atBat } = await supabase
         .from('at_bats')
         .select('*')
@@ -249,7 +256,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
 
       await supabase.from('at_bats').delete().eq('id', lastAtBatId)
 
-      // Re-fetch the game row from DB as the source of truth
       const { data: freshGame } = await supabase
         .from('games')
         .select('*')
@@ -258,13 +264,11 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
 
       if (!freshGame) throw new Error('Game not found')
 
-      // Reverse the score delta
       const runsToReverse = atBat.rbi ?? 0
       const wasBottom = atBat.top_bottom === 'bottom'
       const newHomeScore = freshGame.home_score - (wasBottom ? runsToReverse : 0)
       const newAwayScore = freshGame.away_score - (wasBottom ? 0 : runsToReverse)
 
-      // Reverse outs: if it was an out, decrement by 1 (floor at 0)
       const wasOut = isOut(atBat.result as AtBatResult)
       const newOuts = Math.max(0, freshGame.outs - (wasOut ? 1 : 0))
 
@@ -282,7 +286,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
 
       if (gameError) throw gameError
 
-      // Reverse the inning stats
       const existingInning = innings.find((i) => i.inning === atBat.inning)
       if (existingInning) {
         const wasHit = isHit(atBat.result as AtBatResult)
@@ -301,7 +304,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         ))
       }
 
-      // Sync store back to DB state
       store.updateScore(newHomeScore, newAwayScore)
       store.undoLastAction()
       setLastAtBatId(store.actionHistory.at(-2)?.atBatId ?? null)
@@ -332,8 +334,8 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
     <div className="min-h-screen bg-background flex flex-col">
       {/* Lineup warning */}
       {lineupMissing && (
-        <div className="bg-destructive/10 border-b border-destructive/30 px-4 py-2 flex items-center justify-between gap-3">
-          <p className="text-sm text-destructive font-medium">
+        <div className="bg-clay/10 border-b border-clay/30 px-4 py-2 flex items-center justify-between gap-3">
+          <p className="text-sm text-clay font-500">
             {!currentBatter && !pitcher
               ? 'No lineups set — scoring is disabled'
               : !currentBatter
@@ -342,33 +344,68 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
           </p>
           <a
             href={`/games/${initialGame.id}/lineup`}
-            className="text-xs font-medium text-destructive underline underline-offset-2 shrink-0"
+            className="font-display font-700 text-xs tracking-[0.18em] uppercase text-clay underline underline-offset-2 shrink-0"
           >
             Set Lineup
           </a>
         </div>
       )}
 
-      {/* Top bar */}
-      <header className="flex items-center justify-between p-3 border-b border-border bg-card">
-        <div>
-          <p className="text-xs text-muted-foreground">{initialGame.league.name}</p>
-          <h1 className="font-display text-lg font-700 tracking-wide">
-            {initialGame.away_team.name} @ {initialGame.home_team.name}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={store.outs === 2 ? 'destructive' : 'secondary'}>
-            {store.outs} OUT{store.outs !== 1 ? 'S' : ''}
-          </Badge>
-          <button
-            onClick={handleUndo}
-            disabled={!lastAtBatId || saving}
-            className="p-2 rounded-md border border-border text-muted-foreground hover:text-foreground disabled:opacity-40"
-            aria-label="Undo last at-bat"
-          >
-            <Undo2 className="h-4 w-4" />
-          </button>
+      {/* Scoreboard header — the big scoreboard slab */}
+      <header className="relative bg-ink text-cream overflow-hidden">
+        <div aria-hidden="true" className="stitch-rule opacity-90" />
+        <div className="px-4 pt-3 pb-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="font-display text-[10px] tracking-[0.28em] uppercase text-cream/50 font-700">
+              {initialGame.league.name}
+            </p>
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  'inline-flex items-center h-6 px-2 rounded-sm font-display text-[10px] tracking-[0.2em] uppercase font-800',
+                  store.outs === 2
+                    ? 'bg-stitch text-stitch-foreground'
+                    : 'bg-cream/10 text-cream'
+                )}
+              >
+                {store.outs} Out{store.outs !== 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={handleUndo}
+                disabled={!lastAtBatId || saving}
+                className="h-8 w-8 flex items-center justify-center rounded-sm ring-1 ring-cream/20 text-cream/70 hover:text-cream hover:ring-cream/40 disabled:opacity-30 transition"
+                aria-label="Undo last at-bat"
+              >
+                <Undo2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Score slab */}
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <TeamScore
+              name={initialGame.away_team.name}
+              color={initialGame.away_team.color_hex}
+              score={store.awayScore}
+              isBatting={store.half === 'top'}
+              align="left"
+            />
+            <div className="flex flex-col items-center gap-1 px-2">
+              <span className="pennant-badge bg-stitch text-stitch-foreground font-display text-[9px] tracking-[0.24em] uppercase font-800 px-2 py-0.5 pr-4">
+                {store.half === 'top' ? 'Top' : 'Bot'} {ordinal(store.inning)}
+              </span>
+              <span className="font-display text-[9px] tracking-[0.28em] uppercase text-cream/40 font-700">
+                vs
+              </span>
+            </div>
+            <TeamScore
+              name={initialGame.home_team.name}
+              color={initialGame.home_team.color_hex}
+              score={store.homeScore}
+              isBatting={store.half === 'bottom'}
+              align="right"
+            />
+          </div>
         </div>
       </header>
 
@@ -383,21 +420,29 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         />
       </div>
 
-      {/* Current situation */}
-      <div className="px-3 py-2 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-wide">
-            {store.half === 'top' ? '▲' : '▼'} {store.inning} •{' '}
-            {store.half === 'top' ? initialGame.away_team.name : initialGame.home_team.name} batting
+      {/* Current situation — batter card + diamond */}
+      <div className="px-4 py-3 flex items-center justify-between gap-4 border-y border-border bg-card/50">
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-[10px] tracking-[0.24em] uppercase text-muted-foreground font-700">
+            At the plate
           </p>
-          {currentBatter && (
-            <p className="font-display text-xl font-700 tracking-wide">
-              #{currentBatter.player?.number} {currentBatter.player?.name}
+          {currentBatter ? (
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="font-mono tabular-nums font-700 text-stitch text-lg">
+                #{currentBatter.player?.number ?? '—'}
+              </span>
+              <span className="font-display font-800 text-lg tracking-[0.04em] uppercase truncate">
+                {currentBatter.player?.name}
+              </span>
+            </div>
+          ) : (
+            <p className="font-display text-base font-700 text-muted-foreground mt-0.5">
+              —
             </p>
           )}
           {pitcher && (
-            <p className="text-xs text-muted-foreground">
-              vs. {pitcher.player?.name}
+            <p className="text-xs text-muted-foreground mt-1">
+              vs. <span className="font-500 text-foreground">{pitcher.player?.name}</span>
             </p>
           )}
         </div>
@@ -411,37 +456,73 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
 
       {/* At-bat buttons */}
       <div className="flex-1 p-3">
-        <div className="grid grid-cols-2 gap-3">
-          {AT_BAT_BUTTONS.map(({ label, result, color }) => (
+        <p className="font-display text-[10px] tracking-[0.28em] uppercase text-muted-foreground font-700 px-1 mb-2">
+          Record the Play
+        </p>
+        <div className="grid grid-cols-2 gap-2.5">
+          {AT_BAT_BUTTONS.map(({ label, result, tone }) => (
             <button
               key={result}
               onClick={() => handleAtBat(result)}
-              disabled={saving}
-              className={`
-                h-16 rounded-xl font-display text-2xl font-800 tracking-widest
-                text-white transition-all active:scale-95 disabled:opacity-50
-                ${color}
-              `}
+              disabled={saving || lineupMissing}
+              className={cn(
+                'relative h-20 rounded-md font-display text-3xl font-800 tracking-[0.1em] uppercase transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none',
+                toneClass[tone],
+                tone === 'hr' && 'col-span-2 h-24 text-4xl tracking-[0.16em]'
+              )}
               aria-label={`Record ${label}`}
             >
               {label}
             </button>
           ))}
         </div>
-
-        {/* Score display */}
-        <div className="mt-4 flex justify-center items-center gap-6">
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">{initialGame.away_team.name}</p>
-            <p className="font-display text-5xl font-800 tabular-nums">{store.awayScore}</p>
-          </div>
-          <div className="text-muted-foreground text-2xl font-display">—</div>
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">{initialGame.home_team.name}</p>
-            <p className="font-display text-5xl font-800 tabular-nums">{store.homeScore}</p>
-          </div>
-        </div>
       </div>
     </div>
   )
+}
+
+function TeamScore({
+  name,
+  color,
+  score,
+  isBatting,
+  align,
+}: {
+  name: string
+  color: string
+  score: number
+  isBatting: boolean
+  align: 'left' | 'right'
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col min-w-0',
+        align === 'right' ? 'items-end text-right' : 'items-start text-left'
+      )}
+    >
+      <div className={cn('flex items-center gap-2', align === 'right' && 'flex-row-reverse')}>
+        <span
+          className="w-1.5 h-5 rounded-sm shrink-0"
+          style={{ backgroundColor: color }}
+          aria-hidden="true"
+        />
+        <span className="font-display font-700 text-xs tracking-[0.16em] uppercase text-cream/80 truncate max-w-[120px]">
+          {name}
+        </span>
+        {isBatting && (
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-stitch animate-pulse" aria-hidden="true" />
+        )}
+      </div>
+      <span className="font-mono tabular-nums font-700 text-[56px] leading-none mt-0.5">
+        {score}
+      </span>
+    </div>
+  )
+}
+
+function ordinal(n: number) {
+  const s = ['th', 'st', 'nd', 'rd']
+  const v = n % 100
+  return n + (s[(v - 20) % 10] || s[v] || s[0])
 }
