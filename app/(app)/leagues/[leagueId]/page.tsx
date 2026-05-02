@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { StandingsTable } from '@/components/league/StandingsTable'
 import { GameCard } from '@/components/league/GameCard'
-import { Plus, Settings } from 'lucide-react'
+import { Plus, Settings, ChevronRight } from 'lucide-react'
 import { RosterImportButton } from '@/components/league/RosterImportButton'
 import { type GameWithTeams } from '@/types/database.types'
 
@@ -42,144 +42,126 @@ export default async function LeaguePage({ params }: Props) {
 
   return (
     <div className="min-h-screen">
-      {/* Masthead */}
-      <header className="px-5 pt-6 pb-4">
+      <header className="px-4 pt-6 pb-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-[10px] tracking-[0.28em] uppercase text-muted-foreground font-700">
-              {league.season}
+            <p className="eyebrow">
+              Season {league.season}
             </p>
-            <h1 className="font-display text-4xl font-800 tracking-tight uppercase mt-0.5 leading-[0.95] break-words">
-              {league.name}<span className="text-stitch">.</span>
+            <h1 className="text-[28px] font-bold tracking-[-0.03em] mt-1.5 leading-[1.05] break-words">
+              {league.name}
             </h1>
           </div>
           {isCommissioner && (
             <Link
               href={`/leagues/${leagueId}/edit`}
-              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-md ring-1 ring-border hover:ring-foreground/30 transition"
+              className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full text-muted-foreground tap hover:bg-muted hover:text-foreground transition-colors"
               aria-label="Edit league"
             >
-              <Settings className="h-4 w-4" aria-hidden="true" />
+              <Settings className="h-4 w-4" />
             </Link>
           )}
         </div>
 
-        {/* Stitch rule + pennant code badge */}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex-1 stitch-rule opacity-85" aria-hidden="true" />
-          <span className="pennant-badge bg-pennant text-pennant-foreground font-display text-[10px] tracking-[0.24em] uppercase font-800 px-3 py-1.5 pr-5">
-            Code {league.join_code}
+        <div className="mt-3 inline-flex items-center gap-2">
+          <span className="eyebrow">Join code</span>
+          <span className="scoreboard text-sm tracking-[0.2em] text-foreground bg-muted px-2 py-1 rounded">
+            {league.join_code}
           </span>
         </div>
 
-        {/* Tab-style nav pills */}
-        <div className="flex gap-2 mt-4 flex-wrap">
+        <div className="flex gap-1.5 mt-4">
           <Link
             href={`/leagues/${leagueId}/schedule`}
-            className="font-display text-[11px] tracking-[0.2em] uppercase font-700 px-3 py-1.5 rounded-md ring-1 ring-border hover:ring-foreground/30 hover:text-stitch transition"
+            className="text-[13px] font-semibold px-3.5 h-8 inline-flex items-center rounded-full bg-muted text-foreground tap hover:bg-muted/70 transition-colors"
           >
             Schedule
           </Link>
           <Link
             href={`/leagues/${leagueId}/stats`}
-            className="font-display text-[11px] tracking-[0.2em] uppercase font-700 px-3 py-1.5 rounded-md ring-1 ring-border hover:ring-foreground/30 hover:text-stitch transition"
+            className="text-[13px] font-semibold px-3.5 h-8 inline-flex items-center rounded-full bg-muted text-foreground tap hover:bg-muted/70 transition-colors"
           >
             Stats
           </Link>
         </div>
       </header>
 
-      <div className="px-4 pb-6 space-y-6">
-        {/* Standings */}
+      <div className="pb-8 space-y-8">
         {standings && standings.length > 0 && (
           <section>
-            <SectionHead label="Standings" />
+            <h2 className="eyebrow mb-2 px-4">Standings</h2>
             <StandingsTable standings={standings} />
           </section>
         )}
 
-        {/* Recent games */}
         {recentGames && recentGames.length > 0 && (
           <section>
-            <SectionHead label="Recent Games" />
-            <div className="space-y-2">
+            <h2 className="eyebrow mb-2 px-4">Recent games</h2>
+            <ul className="px-4 divide-y divide-border border-y border-border">
               {recentGames.map((game) => (
-                <GameCard key={game.id} game={game as unknown as GameWithTeams} showLiveBadge />
+                <li key={game.id}>
+                  <GameCard game={game as unknown as GameWithTeams} showLiveBadge />
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         )}
 
-        {/* Teams */}
         <section>
-          <div className="flex items-baseline justify-between mb-2 px-1">
-            <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="inline-block w-1 h-3.5 rounded-sm bg-foreground" />
-              <h2 className="font-display text-xs font-800 tracking-[0.24em] uppercase">
-                Teams
-              </h2>
-            </div>
+          <div className="flex items-center justify-between mb-2 px-4">
+            <h2 className="eyebrow">Teams</h2>
             {isCommissioner && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <RosterImportButton leagueId={leagueId} />
                 <Link
                   href={`/leagues/${leagueId}/teams/new`}
-                  className="inline-flex items-center gap-1 font-display text-[10px] tracking-[0.2em] uppercase font-700 px-2.5 py-1.5 rounded-md ring-1 ring-border hover:ring-foreground/30 transition"
+                  className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-semibold tap text-foreground hover:bg-muted transition-colors"
                 >
-                  <Plus className="h-3 w-3" aria-hidden="true" />
+                  <Plus className="h-3 w-3" strokeWidth={2.5} />
                   Add
                 </Link>
               </div>
             )}
           </div>
           {!league.teams?.length ? (
-            <div className="text-center py-10 px-6 space-y-3 rounded-md border border-dashed border-border bg-card/60">
-              <p className="font-display text-sm tracking-[0.18em] uppercase text-muted-foreground font-700">
+            <div className="border-y border-border px-6 py-12 text-center space-y-3">
+              <p className="text-sm text-muted-foreground">
                 No teams yet
               </p>
               {isCommissioner && (
                 <Link
                   href={`/leagues/${leagueId}/teams/new`}
-                  className="inline-flex items-center gap-1.5 h-10 px-5 rounded-md bg-stitch text-stitch-foreground font-display font-700 text-xs tracking-[0.22em] uppercase hover:bg-stitch/90 transition"
+                  className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm tap hover:bg-primary/90 transition-colors"
                 >
-                  <Plus className="h-4 w-4" aria-hidden="true" />
-                  Add First Team
+                  <Plus className="h-4 w-4" strokeWidth={2.5} />
+                  Add first team
                 </Link>
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
+            <ul className="px-4 divide-y divide-border border-y border-border">
               {league.teams.map((team) => (
-                <Link
-                  key={team.id}
-                  href={`/teams/${team.id}`}
-                  className="group flex items-center gap-2.5 p-3 rounded-md bg-card border border-border hover:border-foreground/30 hover:-translate-y-[1px] transition-all"
-                >
-                  <span
-                    className="w-1.5 h-8 rounded-full shrink-0"
-                    style={{ backgroundColor: team.color_hex }}
-                    aria-hidden="true"
-                  />
-                  <span className="font-display text-sm font-700 tracking-[0.04em] uppercase truncate group-hover:text-stitch transition-colors">
-                    {team.name}
-                  </span>
-                </Link>
+                <li key={team.id}>
+                  <Link
+                    href={`/teams/${team.id}`}
+                    className="group flex items-center gap-3 py-3.5 -mx-4 px-4 row-hover tap"
+                  >
+                    <span
+                      className="w-1 h-5 rounded-sm shrink-0"
+                      style={{ backgroundColor: team.color_hex }}
+                      aria-hidden="true"
+                    />
+                    <span className="text-[15px] font-semibold truncate flex-1 leading-tight">
+                      {team.name}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </section>
       </div>
-    </div>
-  )
-}
-
-function SectionHead({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-2 px-1">
-      <span aria-hidden="true" className="inline-block w-1 h-3.5 rounded-sm bg-foreground" />
-      <h2 className="font-display text-xs font-800 tracking-[0.24em] uppercase">
-        {label}
-      </h2>
     </div>
   )
 }

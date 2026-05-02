@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Linescore } from '@/components/scoring/Linescore'
 import { BaserunnerDiamond } from '@/components/scoring/BaserunnerDiamond'
-import { Badge } from '@/components/ui/badge'
 import { type Tables, type GameWithTeams, type AtBatWithPlayers } from '@/types/database.types'
-import { RESULT_LABELS, HIT_RESULTS } from '@/lib/wiffle/constants'
+import { RESULT_LABELS_SHORT, HIT_RESULTS } from '@/lib/wiffle/constants'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
 interface Props {
@@ -52,7 +52,6 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'at_bats', filter: `game_id=eq.${game.id}` },
         async (payload) => {
-          // Fetch full at_bat with player joins
           const { data } = await supabase
             .from('at_bats')
             .select(`
@@ -78,68 +77,59 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
   const rules = initialGame.league?.rules_config
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">{initialGame.league?.name}</p>
-            <h1 className="font-display text-xl font-700 tracking-wide">
-              {game.away_team.name} @ {game.home_team.name}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            {isLive && (
-              <Badge variant="destructive" className="gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" aria-hidden="true" />
-                LIVE
-              </Badge>
-            )}
-            {game.status === 'final' && <Badge variant="secondary">FINAL</Badge>}
-          </div>
+    <div className="min-h-screen">
+      <header className="px-5 pt-5 pb-4">
+        <p className="text-xs text-muted-foreground">{initialGame.league?.name}</p>
+        <div className="flex items-baseline justify-between mt-1 gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight leading-tight">
+            {game.away_team.name}
+            <span className="text-muted-foreground font-normal mx-1.5">@</span>
+            {game.home_team.name}
+          </h1>
+          {isLive && (
+            <span className="inline-flex items-center gap-1.5 shrink-0">
+              <span className="live-dot" />
+              <span className="text-[11px] font-semibold tracking-wide text-destructive">LIVE</span>
+            </span>
+          )}
+          {game.status === 'final' && (
+            <span className="text-[11px] font-medium tracking-wide text-muted-foreground shrink-0">FINAL</span>
+          )}
         </div>
-      </div>
+      </header>
 
-      <div className="p-4 space-y-4">
-        {/* Score hero */}
-        <div className="flex items-center justify-center gap-8 py-4">
-          <div className="text-center">
-            <div
-              className="w-3 h-3 rounded-sm mx-auto mb-1"
-              style={{ backgroundColor: game.away_team.color_hex }}
-              aria-hidden="true"
+      <div className="px-4 pb-6 space-y-6">
+        <div className="rounded-xl bg-neutral-950 text-white overflow-hidden">
+          <div className="px-5 py-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <ScoreBlock
+              name={game.away_team.name}
+              color={game.away_team.color_hex}
+              score={game.away_score}
+              align="left"
             />
-            <p className="text-sm font-medium">{game.away_team.name}</p>
-            <p className="font-display text-6xl font-800 tabular-nums leading-none">
-              {game.away_score}
-            </p>
-          </div>
-          <div className="text-center">
-            {isLive && (
-              <>
-                <p className="font-display text-lg font-700 text-primary">
-                  {game.current_half === 'top' ? '▲' : '▼'} {game.current_inning}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {game.outs} out{game.outs !== 1 ? 's' : ''}
-                </p>
-              </>
-            )}
-          </div>
-          <div className="text-center">
-            <div
-              className="w-3 h-3 rounded-sm mx-auto mb-1"
-              style={{ backgroundColor: game.home_team.color_hex }}
-              aria-hidden="true"
+            <div className="text-center min-w-[68px]">
+              {isLive ? (
+                <>
+                  <p className="font-mono tabular-nums font-semibold text-sm">
+                    {game.current_half === 'top' ? '▲' : '▼'} {game.current_inning}
+                  </p>
+                  <p className="text-[11px] text-white/50 mt-0.5">
+                    {game.outs} out{game.outs !== 1 ? 's' : ''}
+                  </p>
+                </>
+              ) : (
+                <span className="text-[11px] font-medium tracking-wide text-white/40 uppercase">vs</span>
+              )}
+            </div>
+            <ScoreBlock
+              name={game.home_team.name}
+              color={game.home_team.color_hex}
+              score={game.home_score}
+              align="right"
             />
-            <p className="text-sm font-medium">{game.home_team.name}</p>
-            <p className="font-display text-6xl font-800 tabular-nums leading-none">
-              {game.home_score}
-            </p>
           </div>
         </div>
 
-        {/* Baserunner diamond */}
         {isLive && (
           <div className="flex justify-center">
             <BaserunnerDiamond
@@ -151,50 +141,91 @@ export function LiveSpectatorClient({ game: initialGame, innings: initialInnings
           </div>
         )}
 
-        {/* Linescore */}
-        <Linescore
-          game={game as Tables<'games'>}
-          homeTeam={game.home_team}
-          awayTeam={game.away_team}
-          innings={innings}
-          totalInnings={rules?.innings}
-        />
+        <section>
+          <h2 className="text-sm font-semibold tracking-tight mb-2 px-1">Linescore</h2>
+          <Linescore
+            game={game as Tables<'games'>}
+            homeTeam={game.home_team}
+            awayTeam={game.away_team}
+            innings={innings}
+            totalInnings={rules?.innings}
+          />
+        </section>
 
-        {/* Play-by-play */}
         {atBats.length > 0 && (
-          <div>
-            <h2 className="font-display text-lg font-700 tracking-wide mb-2">PLAY BY PLAY</h2>
-            <div className="space-y-1">
-              {atBats.map((ab) => (
-                <div
-                  key={ab.id}
-                  className="flex items-center justify-between p-2 rounded bg-card border border-border text-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground text-xs">
-                      {ab.top_bottom === 'top' ? '▲' : '▼'}{ab.inning}
-                    </span>
-                    <span className="font-medium">{ab.batter?.name}</span>
-                    <span className="text-muted-foreground text-xs">vs {ab.pitcher?.name}</span>
-                  </div>
-                  <span
-                    className={`text-xs font-medium ${
-                      ab.result && HIT_RESULTS.includes(ab.result)
-                        ? 'text-emerald-400'
-                        : ab.result === 'walk'
-                        ? 'text-blue-400'
-                        : 'text-muted-foreground'
-                    }`}
+          <section>
+            <h2 className="text-sm font-semibold tracking-tight mb-2 px-1">Play by play</h2>
+            <div className="space-y-1.5">
+              {atBats.map((ab) => {
+                const isHit = ab.result && HIT_RESULTS.includes(ab.result)
+                const isHR = ab.result === 'hr'
+                const isWalk = ab.result === 'walk'
+                return (
+                  <div
+                    key={ab.id}
+                    className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-card border border-border"
                   >
-                    {ab.result ? RESULT_LABELS[ab.result] ?? ab.result : '—'}
-                    {ab.rbi > 0 && ` (${ab.rbi} RBI)`}
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <span className="font-mono tabular-nums text-[11px] text-muted-foreground shrink-0">
+                        {ab.top_bottom === 'top' ? '▲' : '▼'}{ab.inning}
+                      </span>
+                      <span className="text-sm font-medium truncate">{ab.batter?.name}</span>
+                      <span className="text-xs text-muted-foreground truncate">vs {ab.pitcher?.name}</span>
+                    </div>
+                    <span
+                      className={cn(
+                        'text-xs font-semibold font-mono tabular-nums px-2 py-1 rounded shrink-0',
+                        isHR && 'bg-destructive text-live-foreground',
+                        isHit && !isHR && 'bg-field/15 text-field',
+                        isWalk && 'bg-muted text-foreground',
+                        !isHit && !isWalk && 'bg-muted text-muted-foreground'
+                      )}
+                    >
+                      {ab.result ? RESULT_LABELS_SHORT[ab.result] ?? ab.result : '—'}
+                      {ab.rbi > 0 && ` · ${ab.rbi}`}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
-          </div>
+          </section>
         )}
       </div>
+    </div>
+  )
+}
+
+function ScoreBlock({
+  name,
+  color,
+  score,
+  align,
+}: {
+  name: string
+  color: string
+  score: number
+  align: 'left' | 'right'
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col min-w-0',
+        align === 'right' ? 'items-end text-right' : 'items-start text-left'
+      )}
+    >
+      <div className={cn('flex items-center gap-2', align === 'right' && 'flex-row-reverse')}>
+        <span
+          className="w-[3px] h-5 rounded-full shrink-0"
+          style={{ backgroundColor: color }}
+          aria-hidden="true"
+        />
+        <span className="text-sm font-medium text-white/80 truncate max-w-[130px]">
+          {name}
+        </span>
+      </div>
+      <span className="font-mono tabular-nums font-semibold text-[56px] leading-none mt-1 text-white">
+        {score}
+      </span>
     </div>
   )
 }

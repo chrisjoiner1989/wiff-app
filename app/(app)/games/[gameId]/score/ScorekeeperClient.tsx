@@ -28,13 +28,6 @@ interface Props {
   innings: Tables<'game_innings'>[]
 }
 
-/**
- * Dugout button palette:
- * - hits: pennant green
- * - HR: stitch red (the hero)
- * - outs: neutral ink
- * - walk: brass
- */
 const AT_BAT_BUTTONS: {
   label: string
   result: AtBatResult
@@ -47,14 +40,14 @@ const AT_BAT_BUTTONS: {
   { label: 'Out', result: 'out', tone: 'out' },
   { label: 'K', result: 'k', tone: 'out' },
   { label: 'Walk', result: 'walk', tone: 'walk' },
-  { label: 'Foul Out', result: 'foul_out', tone: 'out' },
+  { label: 'Foul out', result: 'foul_out', tone: 'out' },
 ]
 
 const toneClass: Record<string, string> = {
-  hit: 'bg-pennant text-pennant-foreground hover:bg-pennant/90',
-  hr: 'bg-stitch text-stitch-foreground hover:bg-stitch/90 shadow-[0_2px_0_oklch(0_0_0/0.1)]',
-  out: 'bg-card text-foreground ring-1 ring-border hover:ring-foreground/40',
-  walk: 'bg-brass/90 text-ink hover:bg-brass',
+  hit: 'bg-field/15 text-field hover:bg-field/25 border border-field/30',
+  hr: 'bg-destructive text-live-foreground hover:bg-destructive/90 shadow-sm',
+  out: 'bg-card text-foreground border border-border hover:border-foreground/30',
+  walk: 'bg-muted text-foreground hover:bg-muted/70 border border-border',
 }
 
 export function ScorekeeperClient({ game: initialGame, lineups, innings: initialInnings }: Props) {
@@ -331,11 +324,10 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
   const lineupMissing = !currentBatter || !pitcher
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Lineup warning */}
+    <div className="min-h-screen flex flex-col">
       {lineupMissing && (
-        <div className="bg-clay/10 border-b border-clay/30 px-4 py-2 flex items-center justify-between gap-3">
-          <p className="text-sm text-clay font-500">
+        <div className="bg-destructive/10 border-b border-destructive/30 px-4 py-2 flex items-center justify-between gap-3">
+          <p className="text-sm text-destructive font-medium">
             {!currentBatter && !pitcher
               ? 'No lineups set — scoring is disabled'
               : !currentBatter
@@ -344,36 +336,34 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
           </p>
           <a
             href={`/games/${initialGame.id}/lineup`}
-            className="font-display font-700 text-xs tracking-[0.18em] uppercase text-clay underline underline-offset-2 shrink-0"
+            className="text-xs font-semibold text-destructive underline underline-offset-2 shrink-0 tap"
           >
-            Set Lineup
+            Set lineup
           </a>
         </div>
       )}
 
-      {/* Scoreboard header — the big scoreboard slab */}
-      <header className="relative bg-ink text-cream overflow-hidden">
-        <div aria-hidden="true" className="stitch-rule opacity-90" />
+      <header className="bg-neutral-950 text-white overflow-hidden">
         <div className="px-4 pt-3 pb-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="font-display text-[10px] tracking-[0.28em] uppercase text-cream/50 font-700">
+            <p className="text-[11px] text-white/50 font-medium truncate">
               {initialGame.league.name}
             </p>
             <div className="flex items-center gap-2">
               <span
                 className={cn(
-                  'inline-flex items-center h-6 px-2 rounded-sm font-display text-[10px] tracking-[0.2em] uppercase font-800',
+                  'inline-flex items-center h-6 px-2 rounded-md text-[11px] font-semibold tabular-nums',
                   store.outs === 2
-                    ? 'bg-stitch text-stitch-foreground'
-                    : 'bg-cream/10 text-cream'
+                    ? 'bg-destructive text-live-foreground'
+                    : 'bg-white/10 text-white'
                 )}
               >
-                {store.outs} Out{store.outs !== 1 ? 's' : ''}
+                {store.outs} out{store.outs !== 1 ? 's' : ''}
               </span>
               <button
                 onClick={handleUndo}
                 disabled={!lastAtBatId || saving}
-                className="h-8 w-8 flex items-center justify-center rounded-sm ring-1 ring-cream/20 text-cream/70 hover:text-cream hover:ring-cream/40 disabled:opacity-30 transition"
+                className="h-8 w-8 flex items-center justify-center rounded-md ring-1 ring-white/15 text-white/70 hover:text-white hover:ring-white/30 disabled:opacity-30 transition tap"
                 aria-label="Undo last at-bat"
               >
                 <Undo2 className="h-4 w-4" />
@@ -381,7 +371,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
             </div>
           </div>
 
-          {/* Score slab */}
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
             <TeamScore
               name={initialGame.away_team.name}
@@ -390,12 +379,12 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
               isBatting={store.half === 'top'}
               align="left"
             />
-            <div className="flex flex-col items-center gap-1 px-2">
-              <span className="pennant-badge bg-stitch text-stitch-foreground font-display text-[9px] tracking-[0.24em] uppercase font-800 px-2 py-0.5 pr-4">
-                {store.half === 'top' ? 'Top' : 'Bot'} {ordinal(store.inning)}
+            <div className="flex flex-col items-center gap-1 px-2 min-w-[60px]">
+              <span className="font-mono tabular-nums font-semibold text-sm text-white">
+                {store.half === 'top' ? '▲' : '▼'} {ordinal(store.inning)}
               </span>
-              <span className="font-display text-[9px] tracking-[0.28em] uppercase text-cream/40 font-700">
-                vs
+              <span className="text-[10px] tracking-wide uppercase text-white/40">
+                inning
               </span>
             </div>
             <TeamScore
@@ -409,7 +398,6 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         </div>
       </header>
 
-      {/* Linescore */}
       <div className="p-3">
         <Linescore
           game={currentGame}
@@ -420,29 +408,28 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         />
       </div>
 
-      {/* Current situation — batter card + diamond */}
       <div className="px-4 py-3 flex items-center justify-between gap-4 border-y border-border bg-card/50">
         <div className="min-w-0 flex-1">
-          <p className="font-display text-[10px] tracking-[0.24em] uppercase text-muted-foreground font-700">
+          <p className="text-[11px] font-medium text-muted-foreground">
             At the plate
           </p>
           {currentBatter ? (
             <div className="flex items-baseline gap-2 mt-0.5">
-              <span className="font-mono tabular-nums font-700 text-stitch text-lg">
+              <span className="font-mono tabular-nums font-semibold text-destructive text-base">
                 #{currentBatter.player?.number ?? '—'}
               </span>
-              <span className="font-display font-800 text-lg tracking-[0.04em] uppercase truncate">
+              <span className="text-base font-semibold tracking-tight truncate">
                 {currentBatter.player?.name}
               </span>
             </div>
           ) : (
-            <p className="font-display text-base font-700 text-muted-foreground mt-0.5">
+            <p className="text-base font-medium text-muted-foreground mt-0.5">
               —
             </p>
           )}
           {pitcher && (
             <p className="text-xs text-muted-foreground mt-1">
-              vs. <span className="font-500 text-foreground">{pitcher.player?.name}</span>
+              vs <span className="font-medium text-foreground">{pitcher.player?.name}</span>
             </p>
           )}
         </div>
@@ -454,10 +441,9 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
         />
       </div>
 
-      {/* At-bat buttons */}
       <div className="flex-1 p-3">
-        <p className="font-display text-[10px] tracking-[0.28em] uppercase text-muted-foreground font-700 px-1 mb-2">
-          Record the Play
+        <p className="text-[11px] font-medium text-muted-foreground px-1 mb-2">
+          Record the play
         </p>
         <div className="grid grid-cols-2 gap-2.5">
           {AT_BAT_BUTTONS.map(({ label, result, tone }) => (
@@ -466,9 +452,9 @@ export function ScorekeeperClient({ game: initialGame, lineups, innings: initial
               onClick={() => handleAtBat(result)}
               disabled={saving || lineupMissing}
               className={cn(
-                'relative h-20 rounded-md font-display text-3xl font-800 tracking-[0.1em] uppercase transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none',
+                'relative h-20 rounded-lg text-2xl font-semibold tracking-tight transition-all active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none',
                 toneClass[tone],
-                tone === 'hr' && 'col-span-2 h-24 text-4xl tracking-[0.16em]'
+                tone === 'hr' && 'col-span-2 h-24 text-3xl'
               )}
               aria-label={`Record ${label}`}
             >
@@ -503,18 +489,18 @@ function TeamScore({
     >
       <div className={cn('flex items-center gap-2', align === 'right' && 'flex-row-reverse')}>
         <span
-          className="w-1.5 h-5 rounded-sm shrink-0"
+          className="w-[3px] h-5 rounded-full shrink-0"
           style={{ backgroundColor: color }}
           aria-hidden="true"
         />
-        <span className="font-display font-700 text-xs tracking-[0.16em] uppercase text-cream/80 truncate max-w-[120px]">
+        <span className="text-sm font-medium text-white/80 truncate max-w-[130px]">
           {name}
         </span>
         {isBatting && (
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-stitch animate-pulse" aria-hidden="true" />
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive animate-pulse shrink-0" aria-hidden="true" />
         )}
       </div>
-      <span className="font-mono tabular-nums font-700 text-[56px] leading-none mt-0.5">
+      <span className="font-mono tabular-nums font-semibold text-[56px] leading-none mt-1 text-white">
         {score}
       </span>
     </div>

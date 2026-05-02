@@ -13,9 +13,9 @@ export function RosterImportButton({ leagueId }: { leagueId: string }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-md border border-border hover:border-primary/50 transition-colors"
+        className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-[11px] font-semibold tap text-foreground hover:bg-muted transition-colors"
       >
-        <Upload className="h-3 w-3" aria-hidden="true" />
+        <Upload className="h-3 w-3" aria-hidden="true" strokeWidth={2.5} />
         Import
       </button>
       <RosterImportDialog

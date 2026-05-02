@@ -1,3 +1,6 @@
+'use client'
+
+import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface BaserunnerDiamondProps {
@@ -29,9 +32,9 @@ export function BaserunnerDiamond({
       aria-label={`Runners on: ${[first && 'first', second && 'second', third && 'third'].filter(Boolean).join(', ') || 'bases empty'}`}
       role="img"
     >
-      {/* Chalk-line base path — the visible diamond */}
+      {/* Base path */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="w-[72%] h-[72%] rotate-45 border-[1.5px] border-dashed border-foreground/20" />
+        <div className="w-[72%] h-[72%] rotate-45 border border-foreground/15" />
       </div>
 
       {/* Second base — top */}
@@ -46,11 +49,11 @@ export function BaserunnerDiamond({
       <div className="absolute top-1/2 right-0 -translate-y-1/2">
         <Base occupied={first} baseClass={base} />
       </div>
-      {/* Home plate — bottom, always drawn as an outlined chalk mark */}
+      {/* Home plate */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
         <div
           className={cn(
-            'rotate-45 border-[1.5px] border-foreground/45 bg-background',
+            'rotate-45 border border-foreground/40 bg-card',
             base
           )}
           aria-hidden="true"
@@ -68,14 +71,17 @@ function Base({
   baseClass: string
 }) {
   return (
-    <div
-      className={cn(
-        'relative rotate-45 transition-all duration-200',
-        baseClass,
-        occupied
-          ? 'bg-stitch border-[1.5px] border-stitch shadow-[0_0_0_2px_oklch(from_var(--stitch)_l_c_h_/_0.15)]'
-          : 'bg-transparent border-[1.5px] border-foreground/40'
-      )}
+    <motion.div
+      animate={{
+        scale: occupied ? 1 : 1,
+        backgroundColor: occupied ? 'var(--live)' : 'transparent',
+        borderColor: occupied ? 'var(--live)' : 'oklch(from var(--foreground) l c h / 0.35)',
+        boxShadow: occupied
+          ? '0 0 0 3px oklch(from var(--live) l c h / 0.18)'
+          : '0 0 0 0 transparent',
+      }}
+      transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+      className={cn('rotate-45 border', baseClass)}
       aria-hidden="true"
     />
   )

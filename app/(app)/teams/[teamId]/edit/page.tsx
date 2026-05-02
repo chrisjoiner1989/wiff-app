@@ -97,7 +97,7 @@ export default function EditRosterPage() {
 
   if (loading) {
     return (
-      <div className="p-4 space-y-3">
+      <div className="min-h-screen px-4 py-6 space-y-3">
         <Skeleton className="h-10 w-48" />
         {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
       </div>
@@ -105,26 +105,25 @@ export default function EditRosterPage() {
   }
 
   return (
-    <div className="p-4 space-y-6">
-      <header>
+    <div className="min-h-screen px-4 py-6 space-y-5">
+      <header className="px-1">
         <button
           onClick={() => router.back()}
-          className="text-xs text-muted-foreground hover:text-foreground mb-1"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-1"
         >
-          <ChevronLeft className="inline h-3 w-3" />Back
+          <ChevronLeft className="h-3 w-3" />Back
         </button>
-        <h1 className="font-display text-3xl font-800 tracking-tight">EDIT ROSTER</h1>
-        <p className="text-muted-foreground text-sm">{team?.name}</p>
+        <h1 className="text-3xl font-semibold tracking-tight mt-0.5">Edit roster</h1>
+        <p className="text-sm text-muted-foreground mt-1">{team?.name}</p>
       </header>
 
-      {/* Add player form */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="font-display text-lg tracking-wide">Add Player</CardTitle>
+          <CardTitle>Add player</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
-            <div className="col-span-2 space-y-1">
+            <div className="col-span-2 space-y-1.5">
               <Label htmlFor="pname">Name</Label>
               <Input
                 id="pname"
@@ -133,8 +132,8 @@ export default function EditRosterPage() {
                 onChange={(e) => setNewPlayer((p) => ({ ...p, name: e.target.value }))}
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="pnum">#</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="pnum">Number</Label>
               <Input
                 id="pnum"
                 placeholder="00"
@@ -143,15 +142,15 @@ export default function EditRosterPage() {
               />
             </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {POSITIONS.map((pos) => (
               <button
                 key={pos}
                 onClick={() => setNewPlayer((p) => ({ ...p, position: pos }))}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors border ${
+                className={`px-2.5 h-8 rounded-md text-xs font-medium tap transition-colors border ${
                   newPlayer.position === pos
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border text-muted-foreground hover:border-foreground/50'
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground'
                 }`}
               >
                 {pos}
@@ -164,18 +163,20 @@ export default function EditRosterPage() {
             className="w-full"
           >
             <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
-            {adding ? 'Adding…' : 'Add Player'}
+            {adding ? 'Adding…' : 'Add player'}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Current roster */}
       <section>
-        <h2 className="font-display text-xl font-700 tracking-wide mb-3">
-          ROSTER ({players.length})
-        </h2>
+        <div className="flex items-baseline justify-between mb-2 px-1">
+          <h2 className="text-sm font-semibold tracking-tight">Roster</h2>
+          <span className="text-xs text-muted-foreground tabular-nums">{players.length}</span>
+        </div>
         {players.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-6">No players yet. Add some above!</p>
+          <div className="text-center py-10 px-6 rounded-xl border border-dashed border-border bg-card/60">
+            <p className="text-sm text-muted-foreground">No players yet</p>
+          </div>
         ) : (
           <div className="space-y-1.5">
             {players.map((player) => (
@@ -183,15 +184,15 @@ export default function EditRosterPage() {
                 key={player.id}
                 className="flex items-center justify-between p-3 rounded-lg bg-card border border-border"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <span
-                    className="font-display font-700 text-lg w-8 text-center"
+                    className="font-mono tabular-nums font-semibold text-sm w-10 shrink-0 text-center"
                     style={{ color: team?.color_hex }}
                   >
-                    {player.number ? `#${player.number}` : '—'}
+                    {player.number != null ? `#${String(player.number).padStart(2, '0')}` : '—'}
                   </span>
-                  <div>
-                    <p className="font-medium text-sm">{player.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{player.name}</p>
                     {player.position && (
                       <p className="text-xs text-muted-foreground">{player.position}</p>
                     )}

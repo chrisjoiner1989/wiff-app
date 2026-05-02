@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { SignOutButton } from '@/components/auth/SignOutButton'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { ChevronRight } from 'lucide-react'
 
 export default async function ProfilePage() {
@@ -24,82 +25,80 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen">
-      <header className="px-5 pt-6 pb-4">
-        <p className="font-display text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-700">
-          Your Card
-        </p>
-        <h1 className="font-display text-5xl font-800 tracking-tight uppercase mt-0.5 leading-none">
-          Profile<span className="text-stitch">.</span>
+      <header className="px-4 pt-7 pb-6">
+        <p className="eyebrow">Account</p>
+        <h1 className="text-[28px] font-bold tracking-[-0.03em] mt-1.5 leading-none">
+          Profile
         </h1>
-        <div aria-hidden="true" className="stitch-rule mt-4 opacity-85" />
       </header>
 
-      <div className="px-4 pb-6 space-y-6">
-        {/* Rookie-card style user block */}
-        <div className="relative rounded-md bg-card border border-border overflow-hidden">
-          <div aria-hidden="true" className="stitch-rule opacity-80" />
-          <div className="p-5 flex items-center gap-4">
-            <div
-              className="h-20 w-20 shrink-0 rounded-sm bg-ink text-cream flex items-center justify-center font-display font-800 text-2xl tracking-[0.04em]"
-              aria-hidden="true"
-            >
-              {initials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-display text-[10px] tracking-[0.24em] uppercase text-muted-foreground font-700">
-                Player
-              </p>
-              <p className="font-display font-800 text-xl tracking-[0.04em] uppercase truncate">
-                {displayName}
-              </p>
-              <p className="text-xs text-muted-foreground truncate mt-0.5">
-                {user.email}
-              </p>
-            </div>
+      <div className="pb-8 space-y-8">
+        <div className="border-y border-border px-4 py-5 flex items-center gap-4">
+          <div
+            className="h-14 w-14 shrink-0 rounded-full bg-foreground text-background flex items-center justify-center font-bold text-base tracking-tight"
+            aria-hidden="true"
+          >
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-base font-semibold truncate leading-tight">
+              {displayName}
+            </p>
+            <p className="text-xs text-muted-foreground truncate mt-1">
+              {user.email}
+            </p>
           </div>
         </div>
 
-        {/* Commissioner of */}
         {leagues && leagues.length > 0 && (
-          <section>
-            <SectionHead label="Commissioner of" count={leagues.length} />
-            <ul className="space-y-2">
+          <Section label="Commissioner" count={leagues.length}>
+            <ul className="px-4 divide-y divide-border border-y border-border">
               {leagues.map((league) => (
                 <li key={league.id}>
                   <Link
                     href={`/leagues/${league.id}`}
-                    className="group flex items-center justify-between p-3 rounded-md bg-card border border-border hover:border-foreground/30 hover:-translate-y-[1px] transition-all"
+                    className="group flex items-center justify-between py-3.5 -mx-4 px-4 row-hover tap"
                   >
                     <div className="min-w-0">
-                      <p className="font-display font-700 text-sm tracking-[0.04em] uppercase truncate group-hover:text-stitch transition-colors">
+                      <p className="text-sm font-semibold truncate leading-tight">
                         {league.name}
                       </p>
-                      <p className="font-display text-[10px] tracking-[0.2em] uppercase text-muted-foreground font-600 mt-0.5">
+                      <p className="eyebrow mt-1.5">
                         {league.season}
                       </p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
                   </Link>
                 </li>
               ))}
             </ul>
-          </section>
+          </Section>
         )}
 
-        <section>
-          <SectionHead label="Actions" />
-          <Link
-            href="/leagues/new"
-            className="group flex items-center justify-between p-3 rounded-md bg-card border border-border hover:border-foreground/30 transition"
-          >
-            <span className="font-display text-sm font-700 tracking-[0.04em] uppercase group-hover:text-stitch transition-colors">
-              Create a League
-            </span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </Link>
-        </section>
+        <Section label="Appearance">
+          <div className="border-y border-border px-4 py-3 flex items-center justify-between">
+            <span className="text-sm font-medium">Theme</span>
+            <ThemeToggle />
+          </div>
+        </Section>
 
-        <div className="pt-2">
+        <Section label="Actions">
+          <ul className="px-4 divide-y divide-border border-y border-border">
+            <li>
+              <Link
+                href="/leagues/new"
+                className="group flex items-center justify-between py-3.5 -mx-4 px-4 row-hover tap"
+              >
+                <span className="text-sm font-semibold">
+                  Create a league
+                </span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </Link>
+            </li>
+          </ul>
+        </Section>
+
+        <div className="px-4 pt-2">
           <SignOutButton />
         </div>
       </div>
@@ -107,20 +106,26 @@ export default async function ProfilePage() {
   )
 }
 
-function SectionHead({ label, count }: { label: string; count?: number }) {
+function Section({
+  label,
+  count,
+  children,
+}: {
+  label: string
+  count?: number
+  children: React.ReactNode
+}) {
   return (
-    <div className="flex items-baseline justify-between mb-2 px-1">
-      <div className="flex items-center gap-2">
-        <span aria-hidden="true" className="inline-block w-1 h-3.5 rounded-sm bg-foreground" />
-        <h2 className="font-display text-xs font-800 tracking-[0.24em] uppercase">
-          {label}
-        </h2>
+    <section>
+      <div className="flex items-center justify-between mb-2 px-4">
+        <h2 className="eyebrow">{label}</h2>
+        {count !== undefined && (
+          <span className="text-[10px] text-muted-foreground tabular-nums font-semibold">
+            {String(count).padStart(2, '0')}
+          </span>
+        )}
       </div>
-      {count !== undefined && (
-        <span className="font-mono tabular-nums text-[10px] text-muted-foreground">
-          {String(count).padStart(2, '0')}
-        </span>
-      )}
-    </div>
+      {children}
+    </section>
   )
 }

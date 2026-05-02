@@ -6,39 +6,32 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-display font-700 tracking-[0.14em] uppercase whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/30 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/85",
+        default:
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         outline:
-          "border-border bg-background hover:border-foreground/40 hover:bg-muted/40 aria-expanded:bg-muted aria-expanded:text-foreground",
+          "border-border bg-card hover:bg-muted/60 hover:border-foreground/20",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary",
-        ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-muted hover:text-foreground",
         destructive:
-          "bg-clay/15 text-clay hover:bg-clay/25 focus-visible:ring-clay/30 dark:bg-clay/25 dark:text-clay dark:hover:bg-clay/35",
-        link: "text-stitch underline-offset-4 hover:underline tracking-normal normal-case font-body font-600",
-        /* Dugout — stitch-red pop CTA, used for HR, commit, scorekeeping primary action */
-        stitch:
-          "bg-stitch text-stitch-foreground hover:bg-stitch/90 focus-visible:ring-stitch/40 shadow-[0_1px_0_oklch(0_0_0/0.08)]",
-        /* Dugout — pennant green, used for scheduled/go actions */
-        pennant:
-          "bg-pennant text-pennant-foreground hover:bg-pennant/90 focus-visible:ring-pennant/40",
+          "bg-destructive text-live-foreground hover:bg-destructive/90 focus-visible:ring-destructive/40",
+        live:
+          "bg-live text-live-foreground hover:bg-live/90 focus-visible:ring-live/40 shadow-sm",
+        link: "text-foreground underline-offset-4 hover:underline",
       },
       size: {
-        default:
-          "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        icon: "size-8",
-        "icon-xs":
-          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm":
-          "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg",
-        "icon-lg": "size-9",
+        default: "h-10 px-4",
+        xs: "h-7 px-2.5 text-xs rounded [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-9 px-3 text-sm",
+        lg: "h-11 px-6 text-base",
+        icon: "size-10",
+        "icon-xs": "size-7 rounded",
+        "icon-sm": "size-9",
+        "icon-lg": "size-11",
       },
     },
     defaultVariants: {

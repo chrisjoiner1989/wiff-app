@@ -7,21 +7,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-body);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
-  --font-heading: var(--font-display);
+  --font-display: var(--font-sans);
 
-  /* Wiff — Dugout palette aliases */
-  --color-cream: var(--cream);
-  --color-ink: var(--ink);
-  --color-stitch: var(--stitch);
-  --color-stitch-foreground: var(--stitch-foreground);
-  --color-pennant: var(--pennant);
-  --color-pennant-foreground: var(--pennant-foreground);
-  --color-brass: var(--brass);
-  --color-clay: var(--clay);
+  /* Wiff — Field palette aliases */
+  --color-live: var(--live);
+  --color-live-foreground: var(--live-foreground);
+  --color-field: var(--field);
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -52,118 +45,106 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
 }
 
 /* ============================================================
-   DUGOUT — light mode (cream paper, ink, stitch red, pennant green)
+   FIELD — light mode (paper-white, ink-black, one rose accent)
    ============================================================ */
 :root {
-  /* Brand primitives */
-  --cream: oklch(0.955 0.018 82);         /* #F5EFE4 warm paper */
-  --ink: oklch(0.18 0.008 60);            /* #1A1817 warm near-black */
-  --stitch: oklch(0.55 0.195 25);         /* #C8102E vintage ball-stitch red */
-  --stitch-foreground: oklch(0.97 0.01 82);
-  --pennant: oklch(0.38 0.065 155);       /* #0B3D2E pennant green */
-  --pennant-foreground: oklch(0.97 0.01 82);
-  --brass: oklch(0.72 0.12 80);           /* aged brass accent */
-  --clay: oklch(0.58 0.14 40);            /* terracotta for warnings */
+  /* Brand primitives — reserved for *intentional* accents only */
+  --live: oklch(0.6 0.22 25);              /* rose — LIVE/destructive */
+  --live-foreground: oklch(0.985 0 0);
+  --field: oklch(0.58 0.12 155);           /* pennant green — rare accent */
 
-  /* Semantic tokens mapped to primitives */
-  --background: var(--cream);
-  --foreground: var(--ink);
-  --card: oklch(0.985 0.012 85);          /* slightly whiter card paper */
-  --card-foreground: var(--ink);
-  --popover: oklch(0.985 0.012 85);
-  --popover-foreground: var(--ink);
+  /* Semantic tokens */
+  --background: oklch(0.995 0.002 90);     /* warm near-white */
+  --foreground: oklch(0.14 0.008 260);     /* deep ink */
+  --card: oklch(1 0 0);                    /* pure white surface */
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
 
-  --primary: var(--ink);                   /* ink is primary — used for buttons/wordmark */
-  --primary-foreground: var(--cream);
-  --secondary: oklch(0.92 0.018 80);       /* toasted paper */
-  --secondary-foreground: var(--ink);
-  --muted: oklch(0.92 0.014 80);
-  --muted-foreground: oklch(0.45 0.012 60);
-  --accent: var(--stitch);                 /* stitch red as the ONE pop accent */
-  --accent-foreground: var(--stitch-foreground);
+  --primary: oklch(0.16 0.008 260);        /* near-black */
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0.004 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.965 0.004 260);
+  --muted-foreground: oklch(0.5 0.012 260);
+  --accent: oklch(0.95 0.005 260);
+  --accent-foreground: var(--foreground);
 
-  --destructive: var(--clay);
-  --border: oklch(0.18 0.008 60 / 12%);    /* ink at 12% — warm hairlines */
-  --input: oklch(0.18 0.008 60 / 10%);
-  --ring: var(--stitch);
+  --destructive: var(--live);
+  --border: oklch(0.92 0.004 260);
+  --input: oklch(0.93 0.005 260);
+  --ring: var(--foreground);
 
-  /* Charts — sport-card palette */
-  --chart-1: var(--stitch);
-  --chart-2: var(--pennant);
-  --chart-3: var(--brass);
-  --chart-4: var(--clay);
-  --chart-5: oklch(0.45 0.012 60);
+  --chart-1: var(--live);
+  --chart-2: var(--field);
+  --chart-3: oklch(0.65 0.15 230);
+  --chart-4: oklch(0.72 0.13 85);
+  --chart-5: oklch(0.55 0.012 260);
 
-  --radius: 0.5rem;                         /* slightly tighter — feels more print-y */
+  --radius: 0.5rem;                         /* 8px — sharper, more modern */
 
-  --sidebar: oklch(0.93 0.016 82);
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--ink);
-  --sidebar-primary-foreground: var(--cream);
-  --sidebar-accent: var(--stitch);
-  --sidebar-accent-foreground: var(--stitch-foreground);
-  --sidebar-border: oklch(0.18 0.008 60 / 12%);
-  --sidebar-ring: var(--stitch);
+  --sidebar: oklch(0.99 0.003 260);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--live);
+  --sidebar-accent-foreground: var(--live-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 /* ============================================================
-   DUGOUT — dark mode (night game — ink field, ember stitch)
+   FIELD — dark mode (night games — deep slate, ember live)
    ============================================================ */
 .dark {
-  --cream: oklch(0.955 0.018 82);
-  --ink: oklch(0.12 0.006 60);
-  --stitch: oklch(0.62 0.21 28);           /* ember — slightly brighter for contrast */
-  --stitch-foreground: oklch(0.14 0.01 60);
-  --pennant: oklch(0.55 0.12 160);
-  --pennant-foreground: oklch(0.14 0.01 60);
-  --brass: oklch(0.78 0.13 82);
-  --clay: oklch(0.65 0.17 38);
+  --live: oklch(0.68 0.22 25);
+  --live-foreground: oklch(0.12 0.006 260);
+  --field: oklch(0.7 0.13 155);
 
-  --background: oklch(0.11 0.006 60);
-  --foreground: oklch(0.95 0.012 82);
-  --card: oklch(0.16 0.008 60);
-  --card-foreground: oklch(0.95 0.012 82);
-  --popover: oklch(0.16 0.008 60);
-  --popover-foreground: oklch(0.95 0.012 82);
+  --background: oklch(0.115 0.005 260);    /* very deep slate */
+  --foreground: oklch(0.98 0.003 260);
+  --card: oklch(0.155 0.006 260);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.155 0.006 260);
+  --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.95 0.012 82);
-  --primary-foreground: oklch(0.11 0.006 60);
-  --secondary: oklch(0.2 0.008 60);
-  --secondary-foreground: oklch(0.95 0.012 82);
-  --muted: oklch(0.2 0.008 60);
-  --muted-foreground: oklch(0.62 0.012 60);
-  --accent: var(--stitch);
-  --accent-foreground: var(--stitch-foreground);
+  --primary: oklch(0.98 0.003 260);
+  --primary-foreground: oklch(0.12 0.006 260);
+  --secondary: oklch(0.2 0.006 260);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.2 0.006 260);
+  --muted-foreground: oklch(0.6 0.01 260);
+  --accent: oklch(0.22 0.006 260);
+  --accent-foreground: var(--foreground);
 
-  --destructive: var(--clay);
-  --border: oklch(0.95 0.012 82 / 12%);
-  --input: oklch(0.95 0.012 82 / 10%);
-  --ring: var(--stitch);
+  --destructive: var(--live);
+  --border: oklch(0.98 0.003 260 / 9%);
+  --input: oklch(0.98 0.003 260 / 11%);
+  --ring: var(--foreground);
 
-  --chart-1: var(--stitch);
-  --chart-2: var(--pennant);
-  --chart-3: var(--brass);
-  --chart-4: var(--clay);
-  --chart-5: oklch(0.62 0.012 60);
+  --chart-1: var(--live);
+  --chart-2: var(--field);
+  --chart-3: oklch(0.68 0.16 230);
+  --chart-4: oklch(0.76 0.14 85);
+  --chart-5: oklch(0.62 0.01 260);
 
-  --sidebar: oklch(0.13 0.006 60);
-  --sidebar-foreground: oklch(0.95 0.012 82);
-  --sidebar-primary: oklch(0.95 0.012 82);
-  --sidebar-primary-foreground: oklch(0.11 0.006 60);
-  --sidebar-accent: var(--stitch);
-  --sidebar-accent-foreground: var(--stitch-foreground);
-  --sidebar-border: oklch(0.95 0.012 82 / 12%);
-  --sidebar-ring: var(--stitch);
+  --sidebar: oklch(0.135 0.006 260);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--live);
+  --sidebar-accent-foreground: var(--live-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
@@ -171,86 +152,153 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-body, sans-serif);
-    /* Subtle paper grain — SVG noise rendered at 2% */
-    background-image:
-      radial-gradient(
-        at 100% 0%,
-        oklch(from var(--stitch) l c h / 0.04) 0%,
-        transparent 40%
-      ),
-      radial-gradient(
-        at 0% 100%,
-        oklch(from var(--pennant) l c h / 0.04) 0%,
-        transparent 40%
-      );
-    background-attachment: fixed;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
   }
+
+  /* Tighter selection — broadcast feel */
+  ::selection {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+
+  /* View transitions — native, zero JS */
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 160ms;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
 }
 
 @layer utilities {
-  .font-body {
-    font-family: var(--font-body, sans-serif);
-  }
-  .font-display {
-    font-family: var(--font-display, sans-serif);
-  }
   .font-mono {
-    font-family: var(--font-mono, ui-monospace, monospace);
+    font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+    font-feature-settings: "tnum", "zero", "ss01";
   }
-  .font-700 { font-weight: 700; }
-  .font-800 { font-weight: 800; }
 
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 
-  /* ========== Dugout motifs ========== */
-
-  /* Baseball stitch — two rows of slanted red dashes, scorecard-style */
-  .stitch-rule {
-    --stitch-color: var(--stitch);
-    height: 10px;
-    background-image:
-      linear-gradient(115deg, transparent 40%, var(--stitch-color) 40%, var(--stitch-color) 60%, transparent 60%);
-    background-size: 12px 10px;
-    background-repeat: repeat-x;
-    opacity: 0.85;
+  /* Scoreboard numerals — large, condensed-feeling, broadcast-grade */
+  .scoreboard {
+    font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum", "zero", "ss01", "ss02";
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
 
-  /* Scorecard grid — used in empty states and section backgrounds */
-  .scorecard-grid {
-    background-image:
-      linear-gradient(to right, oklch(from var(--ink) l c h / 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(from var(--ink) l c h / 0.06) 1px, transparent 1px);
-    background-size: 24px 24px;
+  /* Eyebrow / overline label — tracked uppercase micro-label, broadcast cue */
+  .eyebrow {
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted-foreground);
   }
 
-  /* Paper grain overlay — apply on hero surfaces */
-  .paper {
+  /* Hairline divider — single 1px line, no background card needed */
+  .hairline {
+    border-color: var(--border);
+  }
+
+  /* LIVE pill — flat rose, subtle inner glow on dark */
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.125rem 0.4rem;
+    border-radius: 0.25rem;
+    background-color: var(--live);
+    color: var(--live-foreground);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .live-pill::before {
+    content: "";
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 9999px;
+    background-color: var(--live-foreground);
+    opacity: 0.95;
+    animation: live-blink 1.4s steps(2, end) infinite;
+  }
+  @keyframes live-blink {
+    50% { opacity: 0.25; }
+  }
+
+  /* Live dot pulse — kept for legacy callsites */
+  .live-dot {
     position: relative;
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--live);
   }
-  .paper::after {
+  .live-dot::before {
     content: "";
     position: absolute;
     inset: 0;
-    pointer-events: none;
-    opacity: 0.35;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    border-radius: inherit;
+    background-color: inherit;
+    animation: live-pulse 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  @keyframes live-pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.4); opacity: 0; }
   }
 
-  /* Pennant-shaped badge — triangle cut on the right */
-  .pennant-badge {
-    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%);
+  /* Tap feedback */
+  .tap {
+    transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.15s ease;
+  }
+  .tap:active {
+    transform: scale(0.98);
   }
 
-  /* Vintage card — dog-eared upper-right corner */
-  .card-dogear {
-    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  /* Subtle row reveal on hover — replaces card lift */
+  .row-hover {
+    transition: background-color 0.15s ease;
+  }
+  .row-hover:hover {
+    background-color: color-mix(in oklab, var(--foreground) 4%, transparent);
+  }
+  .dark .row-hover:hover {
+    background-color: color-mix(in oklab, var(--foreground) 5%, transparent);
+  }
+
+  /* Lift retained for cards that need it */
+  .lift {
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  .lift:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot::before { animation: none; }
+    .live-pill::before { animation: none; }
+    .tap:active { transform: none; }
+    .row-hover { transition: none; }
+    .lift { transition: none; }
+    .lift:hover { transform: none; }
+    ::view-transition-old(root),
+    ::view-transition-new(root) { animation-duration: 0ms; }
   }
 }

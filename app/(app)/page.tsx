@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { GameCard } from '@/components/league/GameCard'
 import Link from 'next/link'
+import { Plus, ArrowUpRight } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -34,111 +35,104 @@ export default async function DashboardPage() {
 
   const hasGames = (liveGames?.length ?? 0) > 0 || (upcomingGames?.length ?? 0) > 0
   const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
+    weekday: 'short',
+    month: 'short',
     day: 'numeric',
   })
 
   return (
     <div className="min-h-screen">
-      {/* Page header — newspaper masthead */}
-      <header className="px-5 pt-6 pb-4">
-        <div className="flex items-baseline justify-between gap-4">
+      <header className="px-4 pt-7 pb-6">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="font-display text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-700">
-              {today}
-            </p>
-            <h1 className="font-display text-5xl font-800 tracking-tight uppercase mt-0.5 leading-none">
-              Today<span className="text-stitch">.</span>
+            <p className="eyebrow">{today}</p>
+            <h1 className="text-[28px] font-bold tracking-[-0.03em] mt-1.5 leading-none">
+              Today
             </h1>
           </div>
           <Link
             href="/leagues/new"
-            className="shrink-0 inline-flex items-center h-9 px-3 rounded-md bg-primary text-primary-foreground font-display font-700 text-xs tracking-[0.18em] uppercase hover:bg-foreground/85 transition"
+            className="shrink-0 inline-flex items-center gap-1 h-8 pl-3 pr-3.5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold tap hover:bg-primary/90 transition-colors"
           >
-            + League
+            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+            League
           </Link>
         </div>
-        <div aria-hidden="true" className="stitch-rule mt-4 opacity-85" />
       </header>
 
-      {/* Game feed */}
       {hasGames ? (
-        <div className="px-4 pb-6 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both">
+        <div className="pb-8">
           {(liveGames?.length ?? 0) > 0 && (
-            <section>
-              <SectionHead label="Live Now" accent="stitch" count={liveGames!.length} />
-              <div className="space-y-2">
+            <Section label="Live" count={liveGames!.length} live>
+              <ul className="divide-y divide-border">
                 {liveGames!.map((game) => (
-                  <GameCard key={game.id} game={game as any} showLiveBadge />
+                  <li key={game.id}>
+                    <GameCard game={game as any} showLiveBadge />
+                  </li>
                 ))}
-              </div>
-            </section>
+              </ul>
+            </Section>
           )}
 
           {(upcomingGames?.length ?? 0) > 0 && (
-            <section>
-              <SectionHead label="On Deck" count={upcomingGames!.length} />
-              <div className="space-y-2">
+            <Section label="Upcoming" count={upcomingGames!.length}>
+              <ul className="divide-y divide-border">
                 {upcomingGames!.map((game) => (
-                  <GameCard key={game.id} game={game as any} />
+                  <li key={game.id}>
+                    <GameCard game={game as any} />
+                  </li>
                 ))}
-              </div>
-            </section>
+              </ul>
+            </Section>
           )}
 
-          <section>
-            <SectionHead label="Quick Actions" />
-            <div className="grid grid-cols-2 gap-2">
+          <Section label="Jump to">
+            <div className="px-4 grid grid-cols-2 gap-2">
               <QuickTile href="/leagues" label="Leagues" sub="Browse all" />
               <QuickTile href="/games" label="Schedule" sub="Full calendar" />
             </div>
-          </section>
+          </Section>
         </div>
       ) : (
-        <div className="px-5 pb-10 space-y-6 animate-in fade-in duration-500 fill-mode-both">
-          {/* Empty state — scorebook page */}
-          <div className="relative rounded-md border border-border bg-card overflow-hidden">
-            <div aria-hidden="true" className="stitch-rule opacity-80" />
-            <div className="p-6 text-center space-y-3">
-              <span className="inline-block pennant-badge bg-pennant text-pennant-foreground font-display text-[10px] tracking-[0.28em] uppercase font-800 px-3 py-1.5 pr-6">
-                Opening Day
-              </span>
-              <h2 className="font-display text-3xl font-800 tracking-tight uppercase leading-tight">
-                No games<br />on the card yet.
-              </h2>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                Start a league, add your teams, and the box score writes itself.
-              </p>
-              <div className="pt-2 flex flex-col gap-2 max-w-xs mx-auto">
-                <Link
-                  href="/leagues/new"
-                  className="inline-flex items-center justify-center h-11 rounded-md bg-stitch text-stitch-foreground font-display font-700 text-sm tracking-[0.22em] uppercase hover:bg-stitch/90 transition"
-                >
-                  Create League
-                </Link>
-                <Link
-                  href="/leagues"
-                  className="inline-flex items-center justify-center h-11 rounded-md bg-background ring-1 ring-border font-display font-700 text-sm tracking-[0.22em] uppercase text-foreground hover:ring-foreground/30 transition"
-                >
-                  Browse Leagues
-                </Link>
-              </div>
+        <div className="px-4 pb-10 space-y-8">
+          <div className="border-y border-border -mx-4 px-6 py-12 text-center space-y-4">
+            <p className="eyebrow">No games scheduled</p>
+            <h2 className="text-2xl font-bold tracking-[-0.025em]">
+              The season starts here.
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
+              Start a league, add your teams, and the box score writes itself.
+            </p>
+            <div className="pt-2 flex flex-col gap-2 max-w-xs mx-auto">
+              <Link
+                href="/leagues/new"
+                className="inline-flex items-center justify-center h-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm tap hover:bg-primary/90 transition-colors"
+              >
+                Create league
+              </Link>
+              <Link
+                href="/leagues"
+                className="inline-flex items-center justify-center h-10 rounded-full text-foreground font-semibold text-sm tap hover:bg-muted transition-colors"
+              >
+                Browse leagues
+              </Link>
             </div>
           </div>
 
-          {/* Feature strip — box score style */}
-          <ul className="grid grid-cols-3 divide-x divide-border border-y border-border py-4">
+          <ul className="grid grid-cols-3 divide-x divide-border border-y border-border -mx-4">
             {[
-              { stat: 'Live', label: 'Pitch-by-Pitch' },
+              { stat: 'Live', label: 'Pitch-by-pitch' },
               { stat: 'Auto', label: 'Standings' },
-              { stat: 'Paste', label: 'Rosters' },
+              { stat: 'Paste', label: 'Roster import' },
             ].map((f) => (
-              <li key={f.label} className="flex flex-col items-center gap-1 px-2">
-                <span className="font-display font-800 tabular-nums text-2xl uppercase text-stitch tracking-wide">
+              <li
+                key={f.label}
+                className="flex flex-col items-center gap-1.5 py-5"
+              >
+                <span className="scoreboard text-lg">
                   {f.stat}
                 </span>
-                <span className="font-display text-[10px] tracking-[0.22em] uppercase text-muted-foreground font-700 text-center">
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.08em]">
                   {f.label}
                 </span>
               </li>
@@ -150,32 +144,39 @@ export default async function DashboardPage() {
   )
 }
 
-function SectionHead({
+function Section({
   label,
   count,
-  accent,
+  live,
+  children,
 }: {
   label: string
   count?: number
-  accent?: 'stitch'
+  live?: boolean
+  children: React.ReactNode
 }) {
   return (
-    <div className="flex items-baseline justify-between mb-2 px-1">
-      <div className="flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className={`inline-block w-1 h-3.5 rounded-sm ${accent === 'stitch' ? 'bg-stitch' : 'bg-foreground'}`}
-        />
-        <h2 className="font-display text-xs font-800 tracking-[0.24em] uppercase">
-          {label}
-        </h2>
+    <section className="mb-8 last:mb-0">
+      <div className="flex items-center justify-between mb-2 px-4">
+        <div className="flex items-center gap-2">
+          <h2 className="eyebrow">{label}</h2>
+          {live && (
+            <span
+              className="block w-1.5 h-1.5 rounded-full bg-destructive"
+              aria-hidden="true"
+            />
+          )}
+        </div>
+        {count !== undefined && (
+          <span className="text-[10px] text-muted-foreground tabular-nums font-semibold">
+            {String(count).padStart(2, '0')}
+          </span>
+        )}
       </div>
-      {count !== undefined && (
-        <span className="font-mono tabular-nums text-[10px] text-muted-foreground">
-          {String(count).padStart(2, '0')}
-        </span>
-      )}
-    </div>
+      <div className="px-4 border-y border-border">
+        {children}
+      </div>
+    </section>
   )
 }
 
@@ -191,12 +192,13 @@ function QuickTile({
   return (
     <Link
       href={href}
-      className="group flex flex-col justify-between h-20 p-3 rounded-md bg-card border border-border hover:border-foreground/30 hover:-translate-y-[1px] transition-all"
+      className="group flex items-center justify-between p-4 rounded-md bg-card border border-border tap hover:border-foreground/30 transition-colors"
     >
-      <span className="font-display font-800 text-base tracking-[0.14em] uppercase group-hover:text-stitch transition-colors">
-        {label}
-      </span>
-      <span className="text-[11px] text-muted-foreground">{sub}</span>
+      <div>
+        <span className="block text-[15px] font-semibold leading-tight">{label}</span>
+        <span className="block text-[11px] text-muted-foreground mt-0.5">{sub}</span>
+      </div>
+      <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
     </Link>
   )
 }

@@ -31,36 +31,33 @@ export function Linescore({
   return (
     <div
       className={cn(
-        'relative overflow-x-auto rounded-md border border-border bg-card',
+        'relative overflow-x-auto border-y border-border',
         className
       )}
       role="table"
       aria-label="Linescore"
     >
-      {/* Stitch rule up top — the scorecard header */}
-      <div aria-hidden="true" className="stitch-rule opacity-80" />
-
-      <table className="w-full text-sm min-w-max font-mono">
+      <table className="w-full text-sm min-w-max">
         <thead>
-          <tr className="border-b-2 border-border text-muted-foreground">
-            <th className="text-left px-3 py-2.5 w-28 font-display font-700 tracking-[0.14em] uppercase text-[10px] sticky left-0 bg-card z-10">
+          <tr className="border-b border-border">
+            <th className="text-left pl-4 pr-2 py-2.5 w-28 text-[10px] font-semibold tracking-[0.1em] text-muted-foreground uppercase sticky left-0 bg-background z-10">
               Team
             </th>
             {inningNums.map((n) => (
               <th
                 key={n}
-                className="px-2 py-2.5 w-9 text-center font-display font-700 text-[11px] tabular-nums"
+                className="px-2 py-2.5 w-9 text-center text-[10px] font-semibold text-muted-foreground tabular-nums tracking-[0.1em]"
               >
                 {n}
               </th>
             ))}
-            <th className="px-2 py-2.5 w-10 text-center font-display font-800 text-stitch text-[12px] border-l-2 border-border">
+            <th className="px-2 py-2.5 w-11 text-center text-[10px] font-bold text-foreground border-l border-border tracking-[0.1em]">
               R
             </th>
-            <th className="px-2 py-2.5 w-9 text-center font-display font-700 text-[11px]">
+            <th className="px-2 py-2.5 w-9 text-center text-[10px] font-semibold text-muted-foreground tracking-[0.1em]">
               H
             </th>
-            <th className="px-2 py-2.5 w-9 text-center font-display font-700 text-[11px] pr-3">
+            <th className="px-2 py-2.5 w-9 text-center text-[10px] font-semibold text-muted-foreground pr-4 tracking-[0.1em]">
               E
             </th>
           </tr>
@@ -123,17 +120,17 @@ function TeamRow({
     <tr
       className={cn(
         'border-b border-border/60 last:border-0',
-        side === 'away' && 'border-b-2'
+        side === 'away' && 'border-b border-border'
       )}
     >
-      <td className="px-3 py-2.5 sticky left-0 bg-card z-10">
-        <div className="flex items-center gap-2">
+      <td className="pl-4 pr-2 py-3 sticky left-0 bg-background z-10">
+        <div className="flex items-center gap-2.5">
           <span
-            className="w-2.5 h-5 rounded-[2px] shrink-0"
+            className="w-1 h-4 rounded-sm shrink-0"
             style={{ backgroundColor: color }}
             aria-hidden="true"
           />
-          <span className="font-display font-700 text-sm tracking-wide uppercase truncate max-w-[90px]">
+          <span className="font-semibold text-sm truncate max-w-[90px] tracking-tight">
             {name}
           </span>
         </div>
@@ -145,22 +142,21 @@ function TeamRow({
           <td
             key={n}
             className={cn(
-              'px-2 py-2.5 text-center tabular-nums text-base font-500',
-              isCurrent &&
-                'bg-stitch/10 text-stitch font-800 ring-1 ring-inset ring-stitch/30'
+              'px-2 py-3 text-center font-mono tabular-nums text-sm',
+              isCurrent && 'bg-destructive/10 text-destructive font-bold'
             )}
           >
             {runs !== null ? runs : n < currentInning ? '0' : '·'}
           </td>
         )
       })}
-      <td className="px-2 py-2.5 text-center font-display font-800 text-xl border-l-2 border-border tabular-nums">
+      <td className="px-2 py-3 text-center scoreboard text-xl border-l border-border tabular-nums">
         {score}
       </td>
-      <td className="px-2 py-2.5 text-center tabular-nums text-muted-foreground text-sm">
+      <td className="px-2 py-3 text-center font-mono tabular-nums text-muted-foreground text-sm">
         {hits}
       </td>
-      <td className="px-2 py-2.5 pr-3 text-center tabular-nums text-muted-foreground text-sm">
+      <td className="px-2 py-3 pr-4 text-center font-mono tabular-nums text-muted-foreground text-sm">
         {errors}
       </td>
     </tr>
@@ -169,7 +165,7 @@ function TeamRow({
 
 export function LinescoreSkeleton() {
   return (
-    <div className="rounded-md border border-border bg-card p-3 space-y-2">
+    <div className="border-y border-border p-3 space-y-2">
       <Skeleton className="h-6 w-full" />
       <Skeleton className="h-8 w-full" />
       <Skeleton className="h-8 w-full" />

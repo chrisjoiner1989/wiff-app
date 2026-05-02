@@ -51,26 +51,26 @@ export default function NewTeamPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <header>
+    <div className="min-h-screen px-4 py-6 space-y-5">
+      <header className="px-1">
         <button
           onClick={() => router.back()}
-          className="text-xs text-muted-foreground hover:text-foreground mb-1"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-1"
         >
-          <ChevronLeft className="inline h-3 w-3" />Back
+          <ChevronLeft className="h-3 w-3" />Back
         </button>
-        <h1 className="font-display text-4xl font-800 tracking-tight">ADD TEAM</h1>
-        <p className="text-muted-foreground text-sm">Create a new team for this league</p>
+        <h1 className="text-3xl font-semibold tracking-tight mt-0.5">Add team</h1>
+        <p className="text-sm text-muted-foreground mt-1">Create a new team for this league.</p>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg tracking-wide">Team Info</CardTitle>
+            <CardTitle>Team info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="name">Team Name</Label>
+              <Label htmlFor="name">Team name</Label>
               <Input
                 id="name"
                 placeholder="Yard Bombers"
@@ -81,7 +81,7 @@ export default function NewTeamPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Team Color</Label>
+              <Label>Team color</Label>
               <div className="grid grid-cols-6 gap-2">
                 {PRESET_COLORS.map((c) => (
                   <button
@@ -119,10 +119,11 @@ export default function NewTeamPage() {
 
         <Button
           type="submit"
-          className="w-full h-12 font-display text-lg font-700 tracking-wide"
+          size="lg"
+          className="w-full"
           disabled={createTeam.isPending}
         >
-          {createTeam.isPending ? 'Creating…' : 'CREATE TEAM'}
+          {createTeam.isPending ? 'Creating…' : 'Create team'}
         </Button>
       </form>
     </div>

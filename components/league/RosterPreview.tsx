@@ -67,7 +67,7 @@ export function RosterPreview({ draft, onChange }: Props) {
                 value={team.name}
                 onChange={(e) => updateTeam(team._cid, { name: e.target.value })}
                 placeholder="Team name"
-                className="font-display font-700 text-base tracking-wide"
+                className="text-base font-semibold tracking-tight"
               />
               {/* Color picker */}
               <div className="flex items-center gap-2">

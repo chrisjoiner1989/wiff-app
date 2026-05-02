@@ -76,20 +76,21 @@ export default function NewLeaguePage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <header>
-        <h1 className="font-display text-4xl font-800 tracking-tight">CREATE LEAGUE</h1>
-        <p className="text-muted-foreground text-sm">Set up your wiffle ball league</p>
+    <div className="min-h-screen px-4 py-6 space-y-5">
+      <header className="px-1">
+        <p className="text-sm text-muted-foreground font-medium">New</p>
+        <h1 className="text-3xl font-semibold tracking-tight mt-0.5">Create league</h1>
+        <p className="text-sm text-muted-foreground mt-1">Set up the basics — you can tune rules anytime.</p>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg tracking-wide">League Info</CardTitle>
+            <CardTitle>League info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="name">League Name</Label>
+              <Label htmlFor="name">League name</Label>
               <Input id="name" placeholder="Backyard Bombers League" {...register('name')} />
               {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
@@ -103,7 +104,7 @@ export default function NewLeaguePage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg tracking-wide">Rules</CardTitle>
+            <CardTitle>Rules</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -112,13 +113,13 @@ export default function NewLeaguePage() {
                 <Input id="innings" type="number" {...register('innings')} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="pitching_distance_ft">Pitching Distance (ft)</Label>
+                <Label htmlFor="pitching_distance_ft">Pitching distance (ft)</Label>
                 <Input id="pitching_distance_ft" type="number" {...register('pitching_distance_ft')} />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label>Strike Zone Type</Label>
+              <Label>Strike zone</Label>
               <Select
                 defaultValue="mat"
                 onValueChange={(v) => setValue('strike_zone_type', v as 'mat' | 'ump' | 'honor')}
@@ -127,33 +128,33 @@ export default function NewLeaguePage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mat">Strike Zone Mat</SelectItem>
-                  <SelectItem value="ump">Live Umpire</SelectItem>
-                  <SelectItem value="honor">Honor System</SelectItem>
+                  <SelectItem value="mat">Strike zone mat</SelectItem>
+                  <SelectItem value="ump">Live umpire</SelectItem>
+                  <SelectItem value="honor">Honor system</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="mercy_rule_runs">Mercy Rule (runs)</Label>
+                <Label htmlFor="mercy_rule_runs">Mercy rule (runs)</Label>
                 <Input id="mercy_rule_runs" type="number" {...register('mercy_rule_runs')} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="mercy_rule_after_inning">After Inning</Label>
+                <Label htmlFor="mercy_rule_after_inning">After inning</Label>
                 <Input id="mercy_rule_after_inning" type="number" {...register('mercy_rule_after_inning')} />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="foul_balls_for_out">Foul Balls for Out</Label>
+              <Label htmlFor="foul_balls_for_out">Foul balls for out</Label>
               <Input id="foul_balls_for_out" type="number" {...register('foul_balls_for_out')} />
             </div>
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full h-12 font-display text-lg font-700 tracking-wide" disabled={loading}>
-          {loading ? 'Creating…' : 'CREATE LEAGUE'}
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading ? 'Creating…' : 'Create league'}
         </Button>
       </form>
     </div>

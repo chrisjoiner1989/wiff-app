@@ -111,7 +111,7 @@ export default function EditLeaguePage() {
 
   if (loading) {
     return (
-      <div className="p-4 space-y-3">
+      <div className="min-h-screen px-4 py-6 space-y-3">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -119,26 +119,26 @@ export default function EditLeaguePage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <header>
+    <div className="min-h-screen px-4 py-6 space-y-5">
+      <header className="px-1">
         <button
           onClick={() => router.back()}
-          className="text-xs text-muted-foreground hover:text-foreground mb-1"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-1"
         >
-          <ChevronLeft className="inline h-3 w-3" />Back
+          <ChevronLeft className="h-3 w-3" />Back
         </button>
-        <h1 className="font-display text-4xl font-800 tracking-tight">EDIT LEAGUE</h1>
-        <p className="text-muted-foreground text-sm">{league?.name}</p>
+        <h1 className="text-3xl font-semibold tracking-tight mt-0.5">Edit league</h1>
+        <p className="text-sm text-muted-foreground mt-1">{league?.name}</p>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg tracking-wide">League Info</CardTitle>
+            <CardTitle>League info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="name">League Name</Label>
+              <Label htmlFor="name">League name</Label>
               <Input id="name" {...register('name')} />
               {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
@@ -152,7 +152,7 @@ export default function EditLeaguePage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg tracking-wide">Rules</CardTitle>
+            <CardTitle>Rules</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -161,13 +161,13 @@ export default function EditLeaguePage() {
                 <Input id="innings" type="number" {...register('innings')} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="pitching_distance_ft">Pitching Distance (ft)</Label>
+                <Label htmlFor="pitching_distance_ft">Pitching distance (ft)</Label>
                 <Input id="pitching_distance_ft" type="number" {...register('pitching_distance_ft')} />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label>Strike Zone Type</Label>
+              <Label>Strike zone</Label>
               <Select
                 defaultValue={league?.rules_config?.strike_zone_type ?? 'mat'}
                 onValueChange={(v) => setValue('strike_zone_type', v as 'mat' | 'ump' | 'honor', { shouldDirty: true })}
@@ -176,26 +176,26 @@ export default function EditLeaguePage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mat">Strike Zone Mat</SelectItem>
-                  <SelectItem value="ump">Live Umpire</SelectItem>
-                  <SelectItem value="honor">Honor System</SelectItem>
+                  <SelectItem value="mat">Strike zone mat</SelectItem>
+                  <SelectItem value="ump">Live umpire</SelectItem>
+                  <SelectItem value="honor">Honor system</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="mercy_rule_runs">Mercy Rule (runs)</Label>
+                <Label htmlFor="mercy_rule_runs">Mercy rule (runs)</Label>
                 <Input id="mercy_rule_runs" type="number" {...register('mercy_rule_runs')} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="mercy_rule_after_inning">After Inning</Label>
+                <Label htmlFor="mercy_rule_after_inning">After inning</Label>
                 <Input id="mercy_rule_after_inning" type="number" {...register('mercy_rule_after_inning')} />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="foul_balls_for_out">Foul Balls for Out</Label>
+              <Label htmlFor="foul_balls_for_out">Foul balls for out</Label>
               <Input id="foul_balls_for_out" type="number" {...register('foul_balls_for_out')} />
             </div>
           </CardContent>
@@ -203,17 +203,17 @@ export default function EditLeaguePage() {
 
         <Button
           type="submit"
-          className="w-full h-12 font-display text-lg font-700 tracking-wide"
+          size="lg"
+          className="w-full"
           disabled={updateLeague.isPending || !isDirty}
         >
-          {updateLeague.isPending ? 'Saving…' : 'SAVE CHANGES'}
+          {updateLeague.isPending ? 'Saving…' : 'Save changes'}
         </Button>
       </form>
 
-      {/* Danger zone */}
       <Card className="border-destructive/40">
         <CardHeader className="pb-2">
-          <CardTitle className="font-display text-lg tracking-wide text-destructive">Danger Zone</CardTitle>
+          <CardTitle className="text-destructive">Danger zone</CardTitle>
         </CardHeader>
         <CardContent>
           {!confirmDelete ? (
@@ -223,7 +223,7 @@ export default function EditLeaguePage() {
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
-              Delete League
+              Delete league
             </Button>
           ) : (
             <div className="space-y-3">
@@ -244,7 +244,7 @@ export default function EditLeaguePage() {
                   disabled={deleteLeague.isPending}
                   onClick={handleDelete}
                 >
-                  {deleteLeague.isPending ? 'Deleting…' : 'Yes, Delete'}
+                  {deleteLeague.isPending ? 'Deleting…' : 'Yes, delete'}
                 </Button>
               </div>
             </div>

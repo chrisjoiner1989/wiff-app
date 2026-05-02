@@ -30,75 +30,61 @@ export function GameCard({ game, showLiveBadge }: GameCardProps) {
   return (
     <Link
       href={href}
-      className={cn(
-        'group relative block rounded-md bg-card border border-border transition-all hover:border-foreground/30 hover:-translate-y-[1px]',
-        isLive && 'border-stitch/50 hover:border-stitch'
-      )}
+      className="group relative block px-4 py-3 -mx-4 row-hover tap"
     >
-      {/* Top status rail */}
-      <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
-        <div className="flex items-center gap-2 min-w-0">
-          {isLive && showLiveBadge && (
-            <span className="inline-flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-stitch opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-stitch" />
-              </span>
-              <span className="font-display font-800 text-[10px] tracking-[0.24em] uppercase text-stitch">
-                Live
-              </span>
-            </span>
+      <div className="flex items-center gap-4">
+        {/* Teams column */}
+        <div className="flex-1 min-w-0 space-y-1">
+          <TeamRow
+            name={game.away_team.name}
+            color={game.away_team.color_hex}
+            score={game.away_score}
+            showScore={isLive || isFinal}
+            dim={winnerSide === 'home'}
+            isWinner={winnerSide === 'away'}
+          />
+          <TeamRow
+            name={game.home_team.name}
+            color={game.home_team.color_hex}
+            score={game.home_score}
+            showScore={isLive || isFinal}
+            dim={winnerSide === 'away'}
+            isWinner={winnerSide === 'home'}
+          />
+        </div>
+
+        {/* Status column — fixed width for alignment */}
+        <div className="shrink-0 w-16 flex flex-col items-end gap-1">
+          {isLive && showLiveBadge && <span className="live-pill">Live</span>}
+          {isLive && !showLiveBadge && (
+            <span className="eyebrow text-destructive">Live</span>
           )}
-          {isFinal && (
-            <span className="font-display font-800 text-[10px] tracking-[0.24em] uppercase text-muted-foreground">
-              Final
-            </span>
-          )}
+          {isFinal && <span className="eyebrow">Final</span>}
           {isScheduled && (
-            <span className="font-display font-700 text-[10px] tracking-[0.22em] uppercase text-muted-foreground">
+            <span className="text-[11px] font-medium text-muted-foreground tabular-nums leading-tight text-right">
               {new Date(game.scheduled_at).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
               })}
-              {' · '}
+              <br />
               {new Date(game.scheduled_at).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: '2-digit',
               })}
             </span>
           )}
+
+          {isLive && (
+            <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
+              {game.current_half === 'top' ? '▲' : '▼'} {game.current_inning}
+            </span>
+          )}
+          {game.league && isFinal && (
+            <span className="text-[10px] text-muted-foreground truncate max-w-full">
+              {game.league.name}
+            </span>
+          )}
         </div>
-
-        {isLive && (
-          <span className="font-display font-700 text-[10px] tracking-[0.14em] uppercase text-muted-foreground tabular-nums">
-            {game.current_half === 'top' ? '▲ Top' : '▼ Bot'} {game.current_inning}
-          </span>
-        )}
-        {game.league && !isLive && (
-          <span className="font-display font-600 text-[9px] tracking-[0.2em] uppercase text-muted-foreground truncate max-w-[40%]">
-            {game.league.name}
-          </span>
-        )}
-      </div>
-
-      {/* Team rows */}
-      <div className="px-3 pb-3 space-y-1">
-        <TeamRow
-          name={game.away_team.name}
-          color={game.away_team.color_hex}
-          score={game.away_score}
-          showScore={isLive || isFinal}
-          dim={winnerSide === 'home'}
-          isWinner={winnerSide === 'away'}
-        />
-        <TeamRow
-          name={game.home_team.name}
-          color={game.home_team.color_hex}
-          score={game.home_score}
-          showScore={isLive || isFinal}
-          dim={winnerSide === 'away'}
-          isWinner={winnerSide === 'home'}
-        />
       </div>
     </Link>
   )
@@ -123,22 +109,28 @@ function TeamRow({
     <div
       className={cn(
         'flex items-center gap-2.5 transition-opacity',
-        dim && 'opacity-55'
+        dim && 'opacity-40'
       )}
     >
       <span
-        className="w-1 h-6 rounded-full shrink-0"
+        className="w-1 h-4 rounded-sm shrink-0"
         style={{ backgroundColor: color }}
         aria-hidden="true"
       />
-      <span className="font-display font-700 text-sm tracking-wide uppercase flex-1 truncate">
+      <span
+        className={cn(
+          'text-[15px] flex-1 truncate leading-tight',
+          isWinner ? 'font-semibold text-foreground' : 'font-medium'
+        )}
+      >
         {name}
       </span>
       {showScore && (
         <span
           className={cn(
-            'font-mono font-700 tabular-nums text-xl leading-none w-8 text-right',
-            isWinner && 'text-stitch'
+            'scoreboard text-2xl leading-none w-9 text-right',
+            isWinner && 'text-foreground',
+            !isWinner && !dim && 'text-muted-foreground'
           )}
         >
           {score}

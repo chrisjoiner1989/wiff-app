@@ -85,19 +85,19 @@ function NewGameForm() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <header>
-        <h1 className="font-display text-4xl font-800 tracking-tight">SCHEDULE GAME</h1>
-        <p className="text-muted-foreground text-sm">Add a game to your league</p>
+    <div className="min-h-screen px-4 py-6 space-y-5">
+      <header className="px-1">
+        <p className="text-sm text-muted-foreground font-medium">New</p>
+        <h1 className="text-3xl font-semibold tracking-tight mt-0.5">Schedule game</h1>
+        <p className="text-sm text-muted-foreground mt-1">Add a game to your league.</p>
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="font-display text-lg tracking-wide">Game Info</CardTitle>
+            <CardTitle>Game info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {/* League select */}
             <div className="space-y-1.5">
               <Label>League</Label>
               <Select
@@ -116,9 +116,8 @@ function NewGameForm() {
               {errors.league_id && <p className="text-xs text-destructive">League is required</p>}
             </div>
 
-            {/* Away team */}
             <div className="space-y-1.5">
-              <Label>Away Team</Label>
+              <Label>Away team</Label>
               <Select
                 onValueChange={(v) => setValue('away_team_id', v as string)}
                 disabled={teams.length === 0}
@@ -135,9 +134,8 @@ function NewGameForm() {
               {errors.away_team_id && <p className="text-xs text-destructive">{errors.away_team_id.message}</p>}
             </div>
 
-            {/* Home team */}
             <div className="space-y-1.5">
-              <Label>Home Team</Label>
+              <Label>Home team</Label>
               <Select
                 onValueChange={(v) => setValue('home_team_id', v as string)}
                 disabled={teams.length === 0}
@@ -154,9 +152,8 @@ function NewGameForm() {
               {errors.home_team_id && <p className="text-xs text-destructive">Home team is required</p>}
             </div>
 
-            {/* Date/time */}
             <div className="space-y-1.5">
-              <Label htmlFor="scheduled_at">Date & Time</Label>
+              <Label htmlFor="scheduled_at">Date & time</Label>
               <Input
                 id="scheduled_at"
                 type="datetime-local"
@@ -165,9 +162,8 @@ function NewGameForm() {
               {errors.scheduled_at && <p className="text-xs text-destructive">Date is required</p>}
             </div>
 
-            {/* Location */}
             <div className="space-y-1.5">
-              <Label htmlFor="field_location">Field Location (optional)</Label>
+              <Label htmlFor="field_location">Field (optional)</Label>
               <Input
                 id="field_location"
                 placeholder="Backyard, 123 Main St"
@@ -177,8 +173,8 @@ function NewGameForm() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full h-12 font-display text-lg font-700 tracking-wide" disabled={loading}>
-          {loading ? 'Scheduling…' : 'SCHEDULE GAME'}
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading ? 'Scheduling…' : 'Schedule game'}
         </Button>
       </form>
     </div>

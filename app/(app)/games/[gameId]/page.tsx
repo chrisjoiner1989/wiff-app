@@ -56,41 +56,28 @@ export default async function GameDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen">
-      {/* Masthead */}
-      <header className="px-5 pt-5 pb-4">
+      <header className="px-4 pt-6 pb-4">
         <Link
           href={`/leagues/${league.id}`}
-          className="inline-flex items-center gap-1 font-display text-[10px] tracking-[0.24em] uppercase text-muted-foreground font-700 hover:text-stitch transition"
+          className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ChevronLeft className="h-3 w-3" />
+          <ChevronLeft className="h-3 w-3" strokeWidth={2.5} />
           {league.name}
         </Link>
 
-        <div className="flex items-baseline justify-between mt-2 gap-3">
-          <h1 className="font-display text-2xl md:text-3xl font-800 tracking-tight uppercase leading-tight">
+        <div className="flex items-start justify-between mt-3 gap-3">
+          <h1 className="text-[22px] font-bold tracking-[-0.025em] leading-[1.1]">
             {game.away_team.name}
-            <span className="text-muted-foreground font-700 mx-2">@</span>
+            <span className="text-muted-foreground font-medium mx-1.5">at</span>
             {game.home_team.name}
           </h1>
-          <div className="shrink-0">
-            {isLive && (
-              <span className="inline-flex items-center gap-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-stitch opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-stitch" />
-                </span>
-                <span className="font-display font-800 text-[10px] tracking-[0.24em] uppercase text-stitch">
-                  Live
-                </span>
-              </span>
-            )}
+          <div className="shrink-0 mt-1">
+            {isLive && <span className="live-pill">Live</span>}
             {isFinal && (
-              <span className="font-display text-[10px] tracking-[0.26em] uppercase font-800 text-muted-foreground">
-                Final
-              </span>
+              <span className="eyebrow">Final</span>
             )}
             {isScheduled && (
-              <span className="font-display text-[10px] tracking-[0.22em] uppercase font-700 text-muted-foreground">
+              <span className="eyebrow tabular-nums">
                 {new Date(game.scheduled_at).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
@@ -100,27 +87,25 @@ export default async function GameDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <div aria-hidden="true" className="stitch-rule mt-3 opacity-85" />
-
-        <div className="flex gap-2 mt-4 flex-wrap">
+        <div className="flex gap-1.5 mt-4 flex-wrap items-center">
           {isLive && (
             <Link
               href={`/games/${gameId}/live`}
-              className="font-display text-[11px] tracking-[0.22em] uppercase font-700 px-3 h-9 inline-flex items-center rounded-md bg-stitch text-stitch-foreground hover:bg-stitch/90 transition"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 h-8 rounded-full bg-destructive text-live-foreground tap hover:bg-destructive/90 transition-colors"
             >
-              Watch Live
+              Watch live
             </Link>
           )}
           {(isScheduled || isLive) && (
             <Link
               href={`/games/${gameId}/score`}
-              className="font-display text-[11px] tracking-[0.22em] uppercase font-700 px-3 h-9 inline-flex items-center rounded-md ring-1 ring-border hover:ring-foreground/30 hover:text-stitch transition"
+              className="text-[13px] font-semibold px-3.5 h-8 inline-flex items-center rounded-full bg-muted text-foreground tap hover:bg-muted/70 transition-colors"
             >
               Scorekeeper
             </Link>
           )}
           {game.field_location && (
-            <span className="font-display text-[11px] tracking-[0.22em] uppercase font-700 px-3 h-9 inline-flex items-center gap-1 text-muted-foreground">
+            <span className="text-[12px] font-medium px-2 h-8 inline-flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-3 w-3" />
               {game.field_location}
             </span>
@@ -128,11 +113,10 @@ export default async function GameDetailPage({ params }: Props) {
         </div>
       </header>
 
-      <div className="px-4 pb-6 space-y-6">
-        {/* Score hero — scoreboard slab */}
-        <div className="relative bg-ink text-cream rounded-md overflow-hidden">
-          <div aria-hidden="true" className="stitch-rule opacity-90" />
-          <div className="px-5 py-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+      <div className="pb-8 space-y-8">
+        {/* Scoreboard — full-bleed broadcast block */}
+        <div className="bg-neutral-950 text-white">
+          <div className="px-6 py-7 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
             <ScoreBlock
               name={game.away_team.name}
               color={game.away_team.color_hex}
@@ -141,8 +125,8 @@ export default async function GameDetailPage({ params }: Props) {
               winner={winnerSide === 'away'}
               align="left"
             />
-            <span className="font-display text-[10px] tracking-[0.28em] uppercase text-cream/40 font-700">
-              vs
+            <span className="text-[10px] font-bold tracking-[0.2em] text-white/35 uppercase">
+              {isLive ? `${game.current_half === 'top' ? '▲' : '▼'} ${game.current_inning}` : 'vs'}
             </span>
             <ScoreBlock
               name={game.home_team.name}
@@ -155,9 +139,8 @@ export default async function GameDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Linescore */}
         <section>
-          <SectionHead label="Linescore" />
+          <h2 className="eyebrow mb-2 px-4">Linescore</h2>
           <Linescore
             game={game}
             homeTeam={game.home_team}
@@ -167,11 +150,10 @@ export default async function GameDetailPage({ params }: Props) {
           />
         </section>
 
-        {/* Play-by-play */}
         {typedAtBats.length > 0 && (
           <section>
-            <SectionHead label="Play by Play" />
-            <div className="space-y-4">
+            <h2 className="eyebrow mb-2 px-4">Play by play</h2>
+            <div className="space-y-5">
               {Array.from({ length: Math.max(...typedAtBats.map((ab) => ab.inning)) }, (_, i) => i + 1).map((inning) => (
                 <div key={inning}>
                   {(['top', 'bottom'] as const).map((half) => {
@@ -179,52 +161,50 @@ export default async function GameDetailPage({ params }: Props) {
                     if (!halfAbs?.length) return null
                     const teamName = half === 'top' ? game.away_team.name : game.home_team.name
                     return (
-                      <div key={half} className="mb-3">
-                        <div className="flex items-center gap-2 mb-1.5 px-1">
+                      <div key={half} className="mb-1">
+                        <div className="flex items-center gap-2 px-4 py-1.5">
                           <span className="font-mono tabular-nums text-[10px] text-muted-foreground">
                             {half === 'top' ? '▲' : '▼'}
                           </span>
-                          <span className="font-display text-[10px] tracking-[0.22em] uppercase font-800 text-muted-foreground">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
                             {ordinal(inning)} · {teamName}
                           </span>
                           <span className="flex-1 h-px bg-border" aria-hidden="true" />
                         </div>
-                        <div className="space-y-1">
+                        <ul className="px-4 divide-y divide-border border-y border-border">
                           {halfAbs.map((ab) => {
                             const isHit = ab.result && HIT_RESULTS.includes(ab.result)
                             const isWalk = ab.result === 'walk'
                             const isHR = ab.result === 'hr'
                             return (
-                              <div
+                              <li
                                 key={ab.id}
-                                className={cn(
-                                  'flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-card border border-border'
-                                )}
+                                className="flex items-center justify-between gap-3 py-3"
                               >
                                 <div className="min-w-0 flex-1">
-                                  <span className="font-display font-700 text-sm tracking-[0.04em] uppercase truncate">
+                                  <span className="text-sm font-semibold truncate">
                                     {ab.batter?.name}
                                   </span>
-                                  <span className="text-muted-foreground text-xs ml-2">
+                                  <span className="text-muted-foreground text-[11px] ml-2">
                                     vs {ab.pitcher?.name}
                                   </span>
                                 </div>
                                 <span
                                   className={cn(
-                                    'font-display text-[11px] font-800 tabular-nums tracking-[0.12em] uppercase px-2 py-1 rounded shrink-0',
-                                    isHR && 'bg-stitch text-stitch-foreground',
-                                    isHit && !isHR && 'bg-pennant/15 text-pennant',
-                                    isWalk && 'bg-brass/20 text-ink',
+                                    'text-[11px] font-bold font-mono tabular-nums px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider',
+                                    isHR && 'bg-destructive text-live-foreground',
+                                    isHit && !isHR && 'bg-field/15 text-field',
+                                    isWalk && 'bg-muted text-foreground',
                                     !isHit && !isWalk && 'bg-muted text-muted-foreground'
                                   )}
                                 >
                                   {ab.result ? RESULT_LABELS_SHORT[ab.result] ?? ab.result : '—'}
                                   {ab.rbi > 0 && ` · ${ab.rbi}`}
                                 </span>
-                              </div>
+                              </li>
                             )
                           })}
-                        </div>
+                        </ul>
                       </div>
                     )
                   })}
@@ -263,33 +243,23 @@ function ScoreBlock({
     >
       <div className={cn('flex items-center gap-2', align === 'right' && 'flex-row-reverse')}>
         <span
-          className="w-1.5 h-5 rounded-sm shrink-0"
+          className="w-1 h-4 rounded-sm shrink-0"
           style={{ backgroundColor: color }}
           aria-hidden="true"
         />
-        <span className="font-display font-700 text-xs tracking-[0.16em] uppercase text-cream/80 truncate max-w-[130px]">
+        <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/75 truncate max-w-[130px]">
           {name}
         </span>
       </div>
       <span
         className={cn(
-          'font-mono tabular-nums font-700 text-[56px] leading-none mt-0.5',
-          winner && 'text-stitch'
+          'scoreboard text-[64px] leading-none mt-2',
+          winner && 'text-white',
+          !winner && !dim && 'text-white/80'
         )}
       >
         {score}
       </span>
-    </div>
-  )
-}
-
-function SectionHead({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-2 px-1">
-      <span aria-hidden="true" className="inline-block w-1 h-3.5 rounded-sm bg-foreground" />
-      <h2 className="font-display text-xs font-800 tracking-[0.24em] uppercase">
-        {label}
-      </h2>
     </div>
   )
 }

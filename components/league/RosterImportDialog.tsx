@@ -159,8 +159,8 @@ export function RosterImportDialog({ leagueId, open, onOpenChange, onSuccess }: 
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="font-display tracking-wide">
-            {step === 'preview' ? 'Review Roster' : 'Import Roster'}
+          <DialogTitle>
+            {step === 'preview' ? 'Review roster' : 'Import roster'}
           </DialogTitle>
         </DialogHeader>
 
@@ -168,31 +168,30 @@ export function RosterImportDialog({ leagueId, open, onOpenChange, onSuccess }: 
           {/* Input step */}
           {(step === 'input' || step === 'loading') && (
             <div className="space-y-4">
-              {/* Tabs */}
               <div className="flex rounded-lg border border-border overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setTab('text')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium transition-colors ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium tap transition-colors ${
                     tab === 'text'
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <FileText className="h-4 w-4" />
-                  Paste Text
+                  Paste text
                 </button>
                 <button
                   type="button"
                   onClick={() => setTab('photo')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium transition-colors ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium tap transition-colors ${
                     tab === 'photo'
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-foreground text-background'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <ImageIcon className="h-4 w-4" />
-                  Upload Photo
+                  Upload photo
                 </button>
               </div>
 
@@ -280,7 +279,7 @@ export function RosterImportDialog({ leagueId, open, onOpenChange, onSuccess }: 
             <>
               <Button variant="outline" onClick={() => handleClose(false)}>Cancel</Button>
               <Button onClick={handleParse} disabled={!canParse}>
-                Parse Roster
+                Parse roster
               </Button>
             </>
           )}
@@ -288,7 +287,7 @@ export function RosterImportDialog({ leagueId, open, onOpenChange, onSuccess }: 
             <>
               <Button variant="outline" onClick={handleReset}>Back</Button>
               <Button onClick={handleConfirm} disabled={!draft?.teams.length}>
-                Confirm & Import
+                Confirm & import
               </Button>
             </>
           )}

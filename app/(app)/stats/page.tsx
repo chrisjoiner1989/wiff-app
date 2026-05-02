@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default async function StatsPage() {
   const supabase = await createClient()
-  // Show stats from the most recent league
   const { data: recentLeagues } = await supabase
     .from('leagues')
     .select('id, name, season')
@@ -23,57 +22,43 @@ export default async function StatsPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="px-5 pt-6 pb-4">
-        <p className="font-display text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-700">
-          League Leaders
-        </p>
-        <h1 className="font-display text-5xl font-800 tracking-tight uppercase mt-0.5 leading-none">
-          Stats<span className="text-stitch">.</span>
+      <header className="px-4 pt-7 pb-5">
+        <p className="eyebrow">League leaders</p>
+        <h1 className="text-[28px] font-bold tracking-[-0.03em] mt-1.5 leading-none">
+          Stats
         </h1>
         {recentLeagues?.[0] && (
-          <p className="font-display text-[11px] tracking-[0.22em] uppercase text-muted-foreground font-700 mt-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mt-2.5">
             {recentLeagues[0].name} · {recentLeagues[0].season}
           </p>
         )}
-        <div aria-hidden="true" className="stitch-rule mt-4 opacity-85" />
       </header>
 
-      <div className="px-4 pb-6">
+      <div className="pb-8">
         {!leagueId ? (
-          <div className="relative rounded-md border border-border bg-card overflow-hidden mt-2">
-            <div aria-hidden="true" className="stitch-rule opacity-80" />
-            <div className="p-8 text-center space-y-3">
-              <span className="inline-block pennant-badge bg-pennant text-pennant-foreground font-display text-[10px] tracking-[0.28em] uppercase font-800 px-3 py-1.5 pr-6">
-                Warmups
-              </span>
-              <h2 className="font-display text-2xl font-800 tracking-tight uppercase leading-tight">
-                No stats yet.
-              </h2>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                Create a league and play some games to fill the back of the card.
-              </p>
-            </div>
+          <div className="border-y border-border px-6 py-14 text-center space-y-3">
+            <p className="eyebrow">No data</p>
+            <h2 className="text-2xl font-bold tracking-[-0.025em]">
+              Stats fill in automatically
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
+              Create a league and play some games — leaderboards build themselves.
+            </p>
           </div>
         ) : (
-          <Tabs defaultValue="batting">
+          <Tabs defaultValue="batting" className="px-4">
             <TabsList className="w-full">
-              <TabsTrigger
-                value="batting"
-                className="flex-1 font-display text-[11px] tracking-[0.22em] uppercase font-700"
-              >
+              <TabsTrigger value="batting" className="flex-1 text-sm font-semibold">
                 Batting
               </TabsTrigger>
-              <TabsTrigger
-                value="pitching"
-                className="flex-1 font-display text-[11px] tracking-[0.22em] uppercase font-700"
-              >
+              <TabsTrigger value="pitching" className="flex-1 text-sm font-semibold">
                 Pitching
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="batting" className="mt-4">
+            <TabsContent value="batting" className="mt-4 -mx-4">
               <BattingStatsTable stats={batting ?? []} />
             </TabsContent>
-            <TabsContent value="pitching" className="mt-4">
+            <TabsContent value="pitching" className="mt-4 -mx-4">
               <PitchingStatsTable stats={pitching ?? []} />
             </TabsContent>
           </Tabs>
