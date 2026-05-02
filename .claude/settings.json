@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dig +short mdkjmsxibgvzepvzjowg.supabase.co)",
+      "Bash(nslookup mdkjmsxibgvzepvzjowg.supabase.co)",
+      "Bash(vercel ls *)"
+    ]
+  }
+}

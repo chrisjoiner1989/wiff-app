@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { GameCard } from '@/components/league/GameCard'
 import Link from 'next/link'
-import { Plus, ArrowUpRight } from 'lucide-react'
+import { Plus, ArrowUpRight, Trophy, CircleDot, Users } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -14,8 +14,18 @@ export default async function DashboardPage() {
     league:leagues!inner (id, name, commissioner_id)
   `
 
-  const [{ data: liveGames }, { data: upcomingGames }] = user
+  const weekFromNow = new Date()
+  weekFromNow.setDate(weekFromNow.getDate() + 7)
+
+  const [
+    { data: profile },
+    { data: liveGames },
+    { data: upcomingGames },
+    { count: leagueCount },
+    { count: teamCount },
+  ] = user
     ? await Promise.all([
+        supabase.from('profiles').select('full_name').eq('id', user.id).single(),
         supabase
           .from('games')
           .select(gameSelect)
@@ -30,40 +40,117 @@ export default async function DashboardPage() {
           .gte('scheduled_at', new Date().toISOString())
           .order('scheduled_at', { ascending: true })
           .limit(5),
+        supabase
+          .from('leagues')
+          .select('id', { count: 'exact', head: true })
+          .eq('commissioner_id', user.id),
+        supabase
+          .from('teams')
+          .select('id, league:leagues!inner (commissioner_id)', { count: 'exact', head: true })
+          .eq('league.commissioner_id', user.id),
       ])
-    : [{ data: [] }, { data: [] }]
+    : [
+        { data: null },
+        { data: [] },
+        { data: [] },
+        { count: 0 },
+        { count: 0 },
+      ]
 
-  const hasGames = (liveGames?.length ?? 0) > 0 || (upcomingGames?.length ?? 0) > 0
+  const liveCount = liveGames?.length ?? 0
+  const upcomingCount = upcomingGames?.length ?? 0
+  const hasGames = liveCount > 0 || upcomingCount > 0
+
+  const firstName =
+    profile?.full_name?.split(' ')[0] ??
+    user?.user_metadata?.full_name?.split(' ')[0] ??
+    user?.email?.split('@')[0]
+
+  const greeting = greetingForHour(new Date().getHours())
+
   const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
+    weekday: 'long',
+    month: 'long',
     day: 'numeric',
   })
 
+  // One-line summary that gives the day a pulse
+  const summary = liveCount > 0
+    ? `${liveCount} ${liveCount === 1 ? 'game' : 'games'} live now`
+    : upcomingCount > 0
+      ? `Next up: ${upcomingCount} on the schedule`
+      : (leagueCount ?? 0) > 0
+        ? 'No games today — quiet on the field'
+        : 'Welcome — let’s build your league'
+
   return (
     <div className="min-h-screen">
+      {/* Welcome */}
       <header className="px-4 pt-7 pb-6">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="eyebrow">{today}</p>
-            <h1 className="text-[28px] font-bold tracking-[-0.03em] mt-1.5 leading-none">
-              Today
-            </h1>
-          </div>
+        <p className="eyebrow">{today}</p>
+        <h1 className="text-[28px] font-bold tracking-[-0.03em] mt-1.5 leading-[1.05]">
+          {greeting}
+          {firstName && (
+            <>
+              ,<br />
+              <span className="text-foreground">{firstName}</span>
+              <span className="text-destructive">.</span>
+            </>
+          )}
+          {!firstName && <span className="text-destructive">.</span>}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2.5 leading-relaxed">
+          {summary}
+        </p>
+
+        <div className="flex gap-1.5 mt-5">
           <Link
             href="/leagues/new"
-            className="shrink-0 inline-flex items-center gap-1 h-8 pl-3 pr-3.5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold tap hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-1 h-8 pl-3 pr-3.5 rounded-full bg-primary text-primary-foreground text-[13px] font-semibold tap hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            League
+            New league
           </Link>
+          {(leagueCount ?? 0) > 0 && (
+            <Link
+              href="/games/new"
+              className="inline-flex items-center gap-1 h-8 px-3.5 rounded-full bg-muted text-foreground text-[13px] font-semibold tap hover:bg-muted/70 transition-colors"
+            >
+              Schedule game
+            </Link>
+          )}
         </div>
       </header>
 
+      {/* Glance bar — quick personal stats */}
+      {(leagueCount ?? 0) > 0 && (
+        <ul className="grid grid-cols-3 divide-x divide-border border-y border-border">
+          <GlanceTile
+            value={leagueCount ?? 0}
+            label={leagueCount === 1 ? 'League' : 'Leagues'}
+            href="/leagues"
+            icon={Trophy}
+          />
+          <GlanceTile
+            value={teamCount ?? 0}
+            label={teamCount === 1 ? 'Team' : 'Teams'}
+            href="/leagues"
+            icon={Users}
+          />
+          <GlanceTile
+            value={liveCount + upcomingCount}
+            label="Up next"
+            href="/games"
+            icon={CircleDot}
+            accent={liveCount > 0}
+          />
+        </ul>
+      )}
+
       {hasGames ? (
-        <div className="pb-8">
-          {(liveGames?.length ?? 0) > 0 && (
-            <Section label="Live" count={liveGames!.length} live>
+        <div className="pt-8 pb-8">
+          {liveCount > 0 && (
+            <Section label="Live" count={liveCount} live>
               <ul className="divide-y divide-border">
                 {liveGames!.map((game) => (
                   <li key={game.id}>
@@ -74,8 +161,8 @@ export default async function DashboardPage() {
             </Section>
           )}
 
-          {(upcomingGames?.length ?? 0) > 0 && (
-            <Section label="Upcoming" count={upcomingGames!.length}>
+          {upcomingCount > 0 && (
+            <Section label="Upcoming" count={upcomingCount}>
               <ul className="divide-y divide-border">
                 {upcomingGames!.map((game) => (
                   <li key={game.id}>
@@ -94,53 +181,96 @@ export default async function DashboardPage() {
           </Section>
         </div>
       ) : (
-        <div className="px-4 pb-10 space-y-8">
-          <div className="border-y border-border -mx-4 px-6 py-12 text-center space-y-4">
-            <p className="eyebrow">No games scheduled</p>
-            <h2 className="text-2xl font-bold tracking-[-0.025em]">
-              The season starts here.
-            </h2>
-            <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
-              Start a league, add your teams, and the box score writes itself.
-            </p>
-            <div className="pt-2 flex flex-col gap-2 max-w-xs mx-auto">
-              <Link
-                href="/leagues/new"
-                className="inline-flex items-center justify-center h-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm tap hover:bg-primary/90 transition-colors"
-              >
-                Create league
-              </Link>
-              <Link
-                href="/leagues"
-                className="inline-flex items-center justify-center h-10 rounded-full text-foreground font-semibold text-sm tap hover:bg-muted transition-colors"
-              >
-                Browse leagues
-              </Link>
+        <div className="pt-8 pb-10 space-y-8">
+          {(leagueCount ?? 0) === 0 ? (
+            <EmptyHero />
+          ) : (
+            <div className="border-y border-border px-6 py-12 text-center space-y-3">
+              <p className="eyebrow">Quiet day</p>
+              <h2 className="text-2xl font-bold tracking-[-0.025em]">
+                Nothing on the schedule.
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
+                Schedule a game and it shows up here.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/games/new"
+                  className="inline-flex items-center justify-center h-10 px-6 rounded-full bg-primary text-primary-foreground font-semibold text-sm tap hover:bg-primary/90 transition-colors"
+                >
+                  Schedule a game
+                </Link>
+              </div>
             </div>
-          </div>
-
-          <ul className="grid grid-cols-3 divide-x divide-border border-y border-border -mx-4">
-            {[
-              { stat: 'Live', label: 'Pitch-by-pitch' },
-              { stat: 'Auto', label: 'Standings' },
-              { stat: 'Paste', label: 'Roster import' },
-            ].map((f) => (
-              <li
-                key={f.label}
-                className="flex flex-col items-center gap-1.5 py-5"
-              >
-                <span className="scoreboard text-lg">
-                  {f.stat}
-                </span>
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.08em]">
-                  {f.label}
-                </span>
-              </li>
-            ))}
-          </ul>
+          )}
         </div>
       )}
     </div>
+  )
+}
+
+function greetingForHour(h: number) {
+  if (h < 5) return 'Late night'
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  if (h < 21) return 'Good evening'
+  return 'Good night'
+}
+
+function EmptyHero() {
+  return (
+    <>
+      <div className="border-y border-border px-6 py-14 text-center space-y-4">
+        <p className="eyebrow">Welcome aboard</p>
+        <h2 className="text-2xl font-bold tracking-[-0.025em] leading-tight">
+          Let&rsquo;s build your league.
+        </h2>
+        <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
+          Start a league, add teams, paste a roster.
+          The box score writes itself.
+        </p>
+        <div className="pt-2 flex flex-col gap-2 max-w-xs mx-auto">
+          <Link
+            href="/leagues/new"
+            className="inline-flex items-center justify-center h-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm tap hover:bg-primary/90 transition-colors"
+          >
+            Create your first league
+          </Link>
+          <Link
+            href="/leagues"
+            className="inline-flex items-center justify-center h-10 rounded-full text-foreground font-semibold text-sm tap hover:bg-muted transition-colors"
+          >
+            Browse existing
+          </Link>
+        </div>
+      </div>
+
+      <ol className="px-4 space-y-1">
+        <p className="eyebrow mb-2 px-1">3 steps to live scoring</p>
+        {[
+          { n: '01', label: 'Create a league', sub: 'Name it. Set the season.' },
+          { n: '02', label: 'Add teams', sub: 'Paste a roster — we’ll parse it.' },
+          { n: '03', label: 'Schedule a game', sub: 'Open scorekeeper. Play ball.' },
+        ].map((s) => (
+          <li
+            key={s.n}
+            className="flex items-start gap-4 py-3 border-b border-border last:border-0"
+          >
+            <span className="scoreboard text-base text-muted-foreground shrink-0 mt-0.5">
+              {s.n}
+            </span>
+            <div className="min-w-0">
+              <p className="text-[15px] font-semibold leading-tight">
+                {s.label}
+              </p>
+              <p className="text-[12px] text-muted-foreground mt-0.5">
+                {s.sub}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
   )
 }
 
@@ -177,6 +307,52 @@ function Section({
         {children}
       </div>
     </section>
+  )
+}
+
+function GlanceTile({
+  value,
+  label,
+  href,
+  icon: Icon,
+  accent,
+}: {
+  value: number
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  accent?: boolean
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="flex flex-col items-center justify-center gap-1.5 py-5 row-hover tap"
+      >
+        <div className="flex items-center gap-1.5">
+          <Icon
+            className={
+              accent
+                ? 'h-3.5 w-3.5 text-destructive'
+                : 'h-3.5 w-3.5 text-muted-foreground'
+            }
+            strokeWidth={2.25}
+          />
+          <span
+            className={
+              accent
+                ? 'scoreboard text-2xl text-destructive leading-none'
+                : 'scoreboard text-2xl leading-none'
+            }
+          >
+            {value}
+          </span>
+        </div>
+        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">
+          {label}
+        </span>
+      </Link>
+    </li>
   )
 }
 
